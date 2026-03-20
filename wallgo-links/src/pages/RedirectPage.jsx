@@ -21,6 +21,8 @@ const RedirectPage = () => {
   const [loading, setLoading] = useState(true);
   const [finalUrl, setFinalUrl] = useState(null);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [hasTapped, setHasTapped] = useState(false);
+  const [popunderTriggered, setPopunderTriggered] = useState(false);
 
   useEffect(() => {
     const alias = urlAlias || searchParams.get('alias');
@@ -93,12 +95,27 @@ const RedirectPage = () => {
   };
 
   const handleNextStep = () => {
-    setIsCapturing(true);
-    setTimeout(() => {
-        setStep(prev => prev + 1);
-        setIsCapturing(false);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, 800);
+    // TRIGGER INITIAL POPUNDER ON FIRST CLICK
+    if (!popunderTriggered && config?.adCodes?.popunder) {
+        setPopunderTriggered(true);
+        const div = document.createElement('div');
+        div.innerHTML = config.adCodes.popunder;
+        executeScripts(div);
+    }
+
+    if (!hasTapped) {
+        setHasTapped(true);
+        setIsCapturing(true);
+        setTimeout(() => {
+            setIsCapturing(false);
+        }, 3000); // Fake verification delay
+        return;
+    }
+
+    setStep(prev => prev + 1);
+    setHasTapped(false);
+    setIsCapturing(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleFinalRedirect = () => {
@@ -179,108 +196,75 @@ const RedirectPage = () => {
       <main style={{ maxWidth: '900px', margin: '180px auto', padding: '0 1.5rem', position: 'relative', zIndex: 10 }}>
         
         {/* MAIN HERO CARD (Centered Floating Glass Widget) */}
+        {/* PROFESSIONAL FLOATING WIDGET (Indiaearnx Style) */}
         <div style={{ 
-            background: 'rgba(255,255,255,0.95)', 
-            backdropFilter: 'blur(15px)',
-            borderRadius: '28px', 
-            padding: '3rem', 
-            border: '1px solid white',
-            boxShadow: '0 40px 100px rgba(0,0,0,0.5)',
+            background: 'white', 
+            borderRadius: '12px', 
+            padding: '2.5rem', 
+            border: '1px solid #ddd',
+            boxShadow: '0 30px 60px rgba(0,0,0,0.3)',
             position: 'relative',
-            overflow: 'hidden',
-            color: '#1a1a1a'
+            textAlign: 'center',
+            color: '#333'
         }}>
-                    <div style={{ position: 'relative', zIndex: 1 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
-                             <div>
-                                <span style={{ background: 'var(--primary-light)', color: 'var(--primary)', padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase', marginBottom: '1rem', display: 'inline-block' }}>
-                                    External Destination Ready
-                                </span>
-                                <h1 style={{ fontSize: '2rem', fontWeight: '950', color: '#000', lineHeight: '1.1', letterSpacing: '-0.02em' }}>{linkDetails.title}</h1>
-                                <p style={{ color: '#666', fontSize: '0.9rem', marginTop: '0.8rem', fontWeight: '600' }}>You are currently on <span style={{ color: 'var(--primary)', fontWeight: '800' }}>Step {step}/{config.steps}</span>. Please verify to reach destination.</p>
-                             </div>
-                             <div style={{ textAlign: 'right' }}>
-                                <div style={{ fontSize: '0.75rem', color: 'var(--text-light)', fontWeight: '700' }}>VERIFICATION</div>
-                                <div style={{ fontSize: '1.5rem', fontWeight: '950', color: 'var(--primary)' }}>STEP {step}/{config.steps}</div>
-                             </div>
-                        </div>
+           <div style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <h1 style={{ fontSize: '1.5rem', fontWeight: '900', color: '#1a1a1a', lineBreak: 'anywhere' }}>{linkDetails.title}</h1>
+                <p style={{ color: '#666', fontSize: '0.8125rem', fontWeight: '700' }}>ADVERTISEMENT</p>
+           </div>
 
-                        {/* STEP PROGRESS BAR */}
-                        <div style={{ height: '8px', background: 'var(--bg-alt)', borderRadius: '10px', marginBottom: '2.5rem', overflow: 'hidden' }}>
-                            <div style={{ 
-                                height: '100%', background: 'var(--primary)', 
-                                width: `${(step/config.steps) * 100}%`, transition: '1s cubic-bezier(0.4, 0, 0.2, 1)' 
-                            }} />
-                        </div>
+           {/* AD BLOCK 1 (Inside Card Above Button) */}
+           <div style={{ marginBottom: '2rem', minHeight: '250px', background: '#f9f9f9', borderRadius: '8px', border: '1px dashed #ccc', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+                <AdBanner rawCode={config?.adCodes?.content} width={300} height={250} />
+                <div style={{ position: 'absolute', top: '10px', right: '10px', background: '#007bff', color: 'white', fontSize: '10px', padding: '2px 8px', borderRadius: '4px', fontWeight: '900' }}>Close Ad</div>
+           </div>
 
-                        <div style={{ textAlign: 'center', padding: '1rem 0' }}>
-                            {step < config.steps ? (
-                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2rem' }}>
-                                    <div style={{ background: 'var(--bg-alt)', padding: '2.5rem', borderRadius: '24px', width: '100%', border: '1px solid var(--border)', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)' }}>
-                                        <p style={{ fontWeight: '800', color: 'var(--text)', marginBottom: '1.5rem', fontSize: '1.125rem' }}>System is scanning for safety...</p>
-                                        <button 
-                                            onClick={handleNextStep}
-                                            disabled={isCapturing}
-                                            style={{ 
-                                                width: '100%', maxWidth: '320px', padding: '1.25rem', borderRadius: '18px', border: 'none', 
-                                                background: 'var(--primary)', color: 'white', fontSize: '1.125rem', fontWeight: '950', cursor: 'pointer', 
-                                                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', transition: '0.3s',
-                                                boxShadow: '0 15px 30px rgba(113, 88, 226, 0.4)'
-                                            }}
-                                        >
-                                            {isCapturing ? 'Verifying...' : 'CONTINUE TO NEXT'}
-                                            {isCapturing ? <Activity className="spin" size={20} /> : <ChevronRight size={22} />}
-                                        </button>
-                                    </div>
-                                    <div style={{ fontSize: '0.8125rem', color: 'var(--text-light)', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: '600' }}>
-                                        <Shield size={16} /> Secure Verification Protocol Powered by Wallgo
-                                    </div>
-                                </div>
-                            ) : (
-                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2.5rem' }}>
-                                    {timeLeft > 0 ? (
-                                        <div style={{ position: 'relative', width: '150px', height: '150px' }}>
-                                            <svg width="150" height="150" viewBox="0 0 150 150">
-                                                <circle cx="75" cy="75" r="68" fill="none" stroke="var(--border)" strokeWidth="10" />
-                                                <circle cx="75" cy="75" r="68" fill="none" stroke="var(--primary)" strokeWidth="10" 
-                                                    strokeDasharray="427.26" 
-                                                    strokeDashoffset={427.26 - (427.26 * (config.timer - timeLeft) / config.timer)}
-                                                    strokeLinecap="round"
-                                                    style={{ transition: 'stroke-dashoffset 1.1s linear', transform: 'rotate(-90deg)', transformOrigin: 'center' }}
-                                                />
-                                            </svg>
-                                            <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
-                                                <div style={{ fontSize: '3rem', fontWeight: '950', color: 'var(--text)', letterSpacing: '-0.05em' }}>{timeLeft}</div>
-                                                <div style={{ fontSize: '0.65rem', fontWeight: '800', color: 'var(--text-light)', textTransform: 'uppercase' }}>Seconds</div>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div style={{ background: '#10b9811a', color: '#10b981', padding: '1.25rem 2.5rem', borderRadius: '16px', fontWeight: '900', display: 'flex', alignItems: 'center', gap: '1rem', border: '1px solid #10b98133' }}>
-                                            <CheckCircle2 size={28} /> Target URL Unlocked!
-                                        </div>
-                                    )}
-
-                                    <button 
-                                        onClick={handleFinalRedirect}
-                                        disabled={!canProceed}
-                                        style={{ 
-                                            width: '100%', maxWidth: '400px', padding: '1.5rem', borderRadius: '24px', border: 'none', 
-                                            background: canProceed ? '#10b981' : 'var(--border)', 
-                                            color: canProceed ? 'white' : 'var(--text-light)', 
-                                            fontSize: '1.35rem', fontWeight: '950', cursor: canProceed ? 'pointer' : 'not-allowed', 
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', transition: '0.4s',
-                                            boxShadow: canProceed ? '0 20px 40px rgba(16, 185, 129, 0.4)' : 'none'
-                                        }}
-                                    >
-                                        {canProceed ? 'GET LINK NOW' : `GENERATING LINK (${timeLeft}s)`}
-                                        {canProceed ? <ExternalLink size={28} /> : <Lock size={26} />}
-                                    </button>
-                                </div>
-                            )}
-                        </div>
+           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                <p style={{ fontWeight: '800', fontSize: '0.875rem' }}>You are on Step {step} of {config.steps}</p>
+                
+                {step < config.steps ? (
+                    <button 
+                        onClick={handleNextStep}
+                        disabled={isCapturing}
+                        style={{ 
+                            width: '100%', maxWidth: '350px', padding: '1rem', borderRadius: '50px', border: 'none', 
+                            background: '#007bff', color: 'white', fontSize: '1.25rem', fontWeight: '950', cursor: 'pointer', 
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', transition: '0.2s',
+                            boxShadow: '0 8px 15px rgba(0, 123, 255, 0.3)'
+                        }}
+                    >
+                        {isCapturing ? 'PLEASE WAIT...' : (hasTapped ? 'CONTINUE ➔' : 'OPEN ➔')}
+                        {!isCapturing && <ArrowRight size={24} />}
+                    </button>
+                ) : (
+                    <div style={{ width: '100%', maxWidth: '400px' }}>
+                        {timeLeft > 0 ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                                <div style={{ fontSize: '2rem', fontWeight: '900', color: '#007bff' }}>{timeLeft}s</div>
+                                <p style={{ fontWeight: '700', color: '#666' }}>Please wait for target link...</p>
+                            </div>
+                        ) : (
+                            <button 
+                                onClick={handleFinalRedirect}
+                                disabled={!canProceed}
+                                style={{ 
+                                    width: '100%', padding: '1.25rem', borderRadius: '50px', border: 'none', 
+                                    background: '#10b981', color: 'white', fontSize: '1.5rem', fontWeight: '950', cursor: 'pointer', 
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem',
+                                    boxShadow: '0 15px 30px rgba(16, 185, 129, 0.3)'
+                                }}
+                            >
+                                GET LINK <ExternalLink size={24} />
+                            </button>
+                        )}
                     </div>
-
-                </div>
+                )}
+           </div>
+           
+           {/* AD BLOCK 2 (Below Button) */}
+           <div style={{ marginTop: '2rem', minHeight: '100px', background: '#f9f9f9', borderRadius: '8px', border: '1px dashed #ccc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <AdBanner rawCode={config?.adCodes?.content} width={300} height={100} />
+           </div>
+        </div>
 
         {/* IN-PAGE BANNER ADS */}
         <div style={{ marginTop: '2.5rem', display: 'grid', gridTemplateColumns: '1fr 300px', gap: '2rem' }} className="responsive-grid">

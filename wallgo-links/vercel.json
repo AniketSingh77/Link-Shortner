@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://link-shortner-mrnv.onrender.com/api/:path*"
+    },
+    {
+      "source": "/st/:path*",
+      "destination": "https://link-shortner-mrnv.onrender.com/st/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

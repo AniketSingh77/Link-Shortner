@@ -4,7 +4,7 @@ import {
   Users, Settings, CreditCard, Globe, FileText, BarChart2, 
   CheckCircle, XCircle, Clock, Shield, Search, Edit2, 
   Trash2, X, Plus, RefreshCw, Activity, DollarSign, 
-  ArrowRight, Download, MousePointer2, ChevronRight, Save, Trash
+  ArrowRight, Download, MousePointer2, ChevronRight, Save, Trash, Code
 } from 'lucide-react';
 import api from '../../utils/api';
 import AdBanner from '../../components/AdBanner';
@@ -77,15 +77,9 @@ const SettingsSection = () => {
     const [config, setConfig] = useState({
       steps: 2,
       timer: 15,
-      stepConfigs: [
-        { step: 1, website: 'https://www.pastex.online/' },
-        { step: 2, website: 'https://www.google.com' }
-      ],
-      adBannerIds: {
-        top: 'fc4c80a53247a4cd577428a7e29741d0',
-        sidebar: '3334f040539d82d83a45dcee7b1e54f2',
-        content: '3334f040539d82d83a45dcee7b1e54f2'
-      }
+      stepConfigs: [],
+      adBannerIds: { top: '', sidebar: '', content: '' },
+      adCodes: { top: '', sidebar: '', content: '', popunder: '', socialBar: '' }
     });
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -93,7 +87,12 @@ const SettingsSection = () => {
     useEffect(() => {
       api.get('/admin/settings').then(r => {
         const adConf = r.data.find(s => s.key === 'ad_config');
-        if (adConf) setConfig(adConf.value);
+        if (adConf) {
+            const val = adConf.value;
+            // Ensure adCodes exists
+            if (!val.adCodes) val.adCodes = { top: '', sidebar: '', content: '', popunder: '', socialBar: '' };
+            setConfig(val);
+        }
       }).finally(() => setLoading(false));
     }, []);
   
@@ -107,11 +106,11 @@ const SettingsSection = () => {
     };
 
     const addStep = () => {
-        const nextStep = config.steps + 1;
+        const nextStep = (config.steps || 0) + 1;
         setConfig({
             ...config,
             steps: nextStep,
-            stepConfigs: [...config.stepConfigs, { step: nextStep, website: 'https://' }]
+            stepConfigs: [...(config.stepConfigs || []), { step: nextStep, website: 'https://' }]
         });
     };
 
@@ -121,48 +120,49 @@ const SettingsSection = () => {
         setConfig({
             ...config,
             steps: newSteps,
-            stepConfigs: config.stepConfigs.slice(0, newSteps)
+            stepConfigs: (config.stepConfigs || []).slice(0, newSteps)
         });
     };
   
     if (loading) return <div style={{ textAlign: 'center', padding: '5rem' }}><Activity size={40} className="spin" /></div>;
   
     return (
-      <div style={{ maxWidth: '900px' }}>
+      <div style={{ maxWidth: '1000px' }}>
         <div style={{ background: 'var(--bg-card)', padding: '2.5rem', borderRadius: '32px', border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
              <div>
                 <h3 style={{ fontSize: '1.5rem', fontWeight: '950', marginBottom: '0.25rem' }}>Monetization Protocol</h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>Configure multi-step redirection and ad behavioral patterns.</p>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>Configure professional redirect logic and Adsterra/Popunder scripts.</p>
              </div>
              <button onClick={handleSave} disabled={saving} style={{ background: 'var(--primary)', color: 'white', border: 'none', padding: '0.75rem 1.5rem', borderRadius: '12px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', transition: '0.2s' }}>
-                {saving ? <Activity className="spin" size={18} /> : <Save size={18} />} Save Protocol
+                {saving ? <Activity className="spin" size={18} /> : <Save size={18} />} Save All Changes
              </button>
           </div>
           
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '3rem' }}>
             <div>
-              <label style={{ display: 'block', fontWeight: '900', fontSize: '0.8125rem', color: 'var(--text)', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Verification Steps</label>
+              <label style={{ display: 'block', fontWeight: '900', fontSize: '0.8125rem', color: 'var(--text)', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Verification Steps (Pages)</label>
               <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                   <button onClick={removeStep} style={{ background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text)', padding: '0.5rem 1rem', borderRadius: '8px', cursor: 'pointer' }}>-</button>
-                  <span style={{ fontSize: '1.25rem', fontWeight: '950' }}>{config.steps} Pages</span>
+                  <span style={{ fontSize: '1.25rem', fontWeight: '950' }}>{config.steps} Steps</span>
                   <button onClick={addStep} style={{ background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text)', padding: '0.5rem 1rem', borderRadius: '8px', cursor: 'pointer' }}>+</button>
               </div>
             </div>
             <div>
-              <label style={{ display: 'block', fontWeight: '900', fontSize: '0.8125rem', color: 'var(--text)', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Final Verification Timer</label>
+              <label style={{ display: 'block', fontWeight: '900', fontSize: '0.8125rem', color: 'var(--text)', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Main Link Timer (Seconds)</label>
               <input type="number" value={config.timer} onChange={e => setConfig({...config, timer: parseInt(e.target.value)})}
                 style={{ width: '100%', padding: '0.875rem', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontWeight: '800' }} />
             </div>
           </div>
 
+          {/* STEP CONFIGS */}
           <div style={{ background: 'var(--bg-alt)', padding: '2rem', borderRadius: '24px', marginBottom: '3rem' }}>
-            <h4 style={{ fontSize: '1rem', fontWeight: '900', marginBottom: '1.5rem', color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Globe size={18} /> Per-Page Website Targeting</h4>
+            <h4 style={{ fontSize: '1rem', fontWeight: '900', marginBottom: '1.5rem', color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Globe size={18} /> Redirect Flow (Optional Iframes)</h4>
             <div style={{ display: 'grid', gap: '1.25rem' }}>
-                {config.stepConfigs.map((s, idx) => (
+                {(config.stepConfigs || []).map((s, idx) => (
                     <div key={idx} style={{ display: 'flex', gap: '1rem', alignItems: 'center', background: 'var(--bg-card)', padding: '1rem', borderRadius: '16px', border: '1px solid var(--border)' }}>
-                        <div style={{ width: '80px', fontWeight: '900', color: 'var(--text-light)', fontSize: '0.75rem' }}>PAGE {s.step}</div>
-                        <input type="text" value={s.website} placeholder="Targeting Link (e.g. pastex.online)"
+                        <div style={{ width: '80px', fontWeight: '900', color: 'var(--text-light)', fontSize: '0.75rem' }}>STEP {idx + 1}</div>
+                        <input type="text" value={s.website} placeholder="Background URL (or leave blank)"
                            onChange={e => {
                                const newConfigs = [...config.stepConfigs];
                                newConfigs[idx].website = e.target.value;
@@ -174,26 +174,65 @@ const SettingsSection = () => {
             </div>
           </div>
 
+          {/* RAW AD CODES (FOR ADSTERRA) */}
           <div>
-              <h4 style={{ fontSize: '1rem', fontWeight: '900', marginBottom: '1.5rem', color: 'var(--text)' }}>Global Ad Units (Vigilant Ads)</h4>
-              <div style={{ display: 'grid', gap: '1.5rem' }}>
+              <h4 style={{ fontSize: '1.125rem', fontWeight: '950', marginBottom: '1.5rem', color: 'var(--text)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <Code size={22} color="var(--primary)" /> Adsterra / Custom Ad Codes
+              </h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                  
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
                     <div>
-                        <label style={{ display: 'block', fontWeight: '700', fontSize: '0.75rem', color: 'var(--text-light)', marginBottom: '0.5rem' }}>Top Leaderboard (728x90)</label>
-                        <input type="text" value={config.adBannerIds.top} onChange={e => setConfig({...config, adBannerIds: {...config.adBannerIds, top: e.target.value}})}
-                            style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontWeight: '600' }} />
+                        <label style={{ display: 'block', fontWeight: '800', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>TOP LEADERBOARD (728x90) SCRIPT</label>
+                        <textarea 
+                            value={config.adCodes?.top} 
+                            onChange={e => setConfig({...config, adCodes: {...config.adCodes, top: e.target.value}})}
+                            placeholder="Paste Adsterra 728x90 script here..."
+                            style={{ width: '100%', minHeight: '100px', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: '0.8125rem', fontFamily: 'monospace' }}
+                        />
                     </div>
                     <div>
-                        <label style={{ display: 'block', fontWeight: '700', fontSize: '0.75rem', color: 'var(--text-light)', marginBottom: '0.5rem' }}>Skyscraper (160x600)</label>
-                        <input type="text" value={config.adBannerIds.sidebar} onChange={e => setConfig({...config, adBannerIds: {...config.adBannerIds, sidebar: e.target.value}})}
-                            style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontWeight: '600' }} />
+                        <label style={{ display: 'block', fontWeight: '800', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>SIDEBAR (300x250) SCRIPT</label>
+                        <textarea 
+                            value={config.adCodes?.sidebar} 
+                            onChange={e => setConfig({...config, adCodes: {...config.adCodes, sidebar: e.target.value}})}
+                            placeholder="Paste Adsterra 300x250 script here..."
+                            style={{ width: '100%', minHeight: '100px', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: '0.8125rem', fontFamily: 'monospace' }}
+                        />
                     </div>
                   </div>
+
                   <div>
-                      <label style={{ display: 'block', fontWeight: '700', fontSize: '0.75rem', color: 'var(--text-light)', marginBottom: '0.5rem' }}>In-Content Box (300x250)</label>
-                      <input type="text" value={config.adBannerIds.content} onChange={e => setConfig({...config, adBannerIds: {...config.adBannerIds, content: e.target.value}})}
-                          style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontWeight: '600' }} />
+                        <label style={{ display: 'block', fontWeight: '800', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>CENTER BOX (300x250) / NATIVE SCRIPT</label>
+                        <textarea 
+                            value={config.adCodes?.content} 
+                            onChange={e => setConfig({...config, adCodes: {...config.adCodes, content: e.target.value}})}
+                            placeholder="Paste Adsterra Native or 300x250 script here..."
+                            style={{ width: '100%', minHeight: '100px', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: '0.8125rem', fontFamily: 'monospace' }}
+                        />
                   </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                    <div>
+                        <label style={{ display: 'block', fontWeight: '800', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>POPUNDER SCRIPT (HIDDEN)</label>
+                        <textarea 
+                            value={config.adCodes?.popunder} 
+                            onChange={e => setConfig({...config, adCodes: {...config.adCodes, popunder: e.target.value}})}
+                            placeholder="Paste Adsterra Popunder script code here..."
+                            style={{ width: '100%', minHeight: '100px', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: '0.8125rem', fontFamily: 'monospace' }}
+                        />
+                    </div>
+                    <div>
+                        <label style={{ display: 'block', fontWeight: '800', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>SOCIAL BAR SCRIPT</label>
+                        <textarea 
+                            value={config.adCodes?.socialBar} 
+                            onChange={e => setConfig({...config, adCodes: {...config.adCodes, socialBar: e.target.value}})}
+                            placeholder="Paste Adsterra Social Bar script here..."
+                            style={{ width: '100%', minHeight: '100px', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: '0.8125rem', fontFamily: 'monospace' }}
+                        />
+                    </div>
+                  </div>
+
               </div>
           </div>
         </div>

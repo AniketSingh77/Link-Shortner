@@ -47,6 +47,7 @@ function App() {
           {/* Public */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/v" element={<RedirectPage />} />
+          <Route path="/v/:alias" element={<RedirectPage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/payout-rates" element={<PayoutRates />} />

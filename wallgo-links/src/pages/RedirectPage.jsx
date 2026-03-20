@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Zap, ExternalLink, ShieldCheck, AlertCircle, Info, Lock, ArrowRight, CheckCircle2, Download, MousePointer2, ShieldAlert } from 'lucide-react';
+import { Zap, ExternalLink, ShieldCheck, AlertCircle, Info, Lock, ArrowRight, CheckCircle2, Download, MousePointer2, ShieldAlert, Activity } from 'lucide-react';
 import AdBanner from '../components/AdBanner';
+import api from '../utils/api';
 
 const RedirectPage = () => {
   const [config, setConfig] = useState({

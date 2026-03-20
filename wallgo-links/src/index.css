@@ -62,17 +62,18 @@
 
 .dark {
   --bg: #050505;
-  --bg-sidebar: #0f0f12;
-  --bg-card: #151518;
-  --bg-white: #0f0f12;
-  --text: #ffffff;
-  --text-muted: #a0a0a5;
-  --text-light: #71717a;
-  --border: #27272a;
-  --border-dark: #3f3f46;
-  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.3);
-  --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  --header-purple: #0f0f12;
+  --bg-sidebar: #0f1115;
+  --bg-card: #14161a;
+  --bg-white: #111318;
+  --bg-alt: #161821;
+  --text: #f1f5f9;
+  --text-muted: #94a3b8;
+  --text-light: #64748b;
+  --border: #1e293b;
+  --border-dark: #334155;
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  --header-purple: #0f1115;
   --primary-light: rgba(113, 88, 226, 0.15);
 }
 

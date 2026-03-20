@@ -259,7 +259,7 @@ const DashboardLayout = ({ children, title, isAdmin = false }) => {
         flexDirection: 'column',
         zIndex: 1000,
         transition: '0.3s',
-        left: mobileOpen ? '0' : '-260px'
+        left: 0
       }} className="sidebar-container">
         {/* Logo */}
         <div style={{ padding: '1.5rem 1.5rem 2.5rem' }}>

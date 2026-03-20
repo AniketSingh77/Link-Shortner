@@ -30,7 +30,7 @@ const AdminLayout = ({ children, title }) => {
         background: isDarkMode ? '#0f0f12' : '#1a1a2e', 
         color: '#fff',
         position: 'fixed',
-        top: 0, bottom: 0, left: mobileOpen ? '0' : '-280px',
+        top: 0, bottom: 0, left: 0,
         zIndex: 1000,
         transition: '0.3s'
       }} className="admin-sidebar" id="admin-sidebar">

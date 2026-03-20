@@ -257,7 +257,7 @@ const DashboardLayout = ({ children, title, isAdmin = false }) => {
         flexDirection: 'column',
         zIndex: 1000,
         transition: '0.3s',
-        left: mobileOpen ? '0' : '-260px'
+        left: 0
       }} className="sidebar-container">
         {/* Logo */}
         <div style={{ padding: '1.5rem 1.5rem 2.5rem' }}>
@@ -415,7 +415,7 @@ const DashboardLayout = ({ children, title, isAdmin = false }) => {
         @media (max-width: 991px) {
             .sidebar-container { left: ${mobileOpen ? '0' : '-260px'} !important; }
             .main-content-layout { margin-left: 0 !important; }
-            .mobile-toggle { display: block !important; }
+            .mobile-toggle { display: block !important; margin-right: 1rem; }
             .user-info-text { display: none; }
         }
         .nav-item:hover { background: #f9f9f9 !important; }

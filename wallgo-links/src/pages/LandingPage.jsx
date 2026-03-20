@@ -60,17 +60,31 @@ const LandingPage = () => {
 
                 <div style={{ display: 'flex', gap: '2.5rem', alignItems: 'center' }}>
                     <Link to="/payout-rates" style={{ color: '#666', fontWeight: '600', fontSize: '0.9375rem', textDecoration: 'none' }}>Payout Rates</Link>
-                    <Link to="/login" style={{ color: '#666', fontWeight: '600', fontSize: '0.9375rem', textDecoration: 'none' }}>Login</Link>
-                    <Link to="/register" style={{
-                        background: 'var(--primary)',
-                        color: 'white',
-                        padding: '0.75rem 1.5rem',
-                        borderRadius: '30px',
-                        fontWeight: '700',
-                        fontSize: '0.9375rem',
-                        textDecoration: 'none',
-                        transition: 'all 0.3s'
-                    }} className="hover:scale-105">Sign Up</Link>
+                    {localStorage.getItem('token') ? (
+                        <Link to="/dashboard" style={{
+                            background: 'var(--primary)',
+                            color: 'white',
+                            padding: '0.75rem 1.5rem',
+                            borderRadius: '30px',
+                            fontWeight: '700',
+                            fontSize: '0.9375rem',
+                            textDecoration: 'none'
+                        }}>Dashboard</Link>
+                    ) : (
+                        <>
+                            <Link to="/login" style={{ color: '#666', fontWeight: '600', fontSize: '0.9375rem', textDecoration: 'none' }}>Login</Link>
+                            <Link to="/register" style={{
+                                background: 'var(--primary)',
+                                color: 'white',
+                                padding: '0.75rem 1.5rem',
+                                borderRadius: '30px',
+                                fontWeight: '700',
+                                fontSize: '0.9375rem',
+                                textDecoration: 'none',
+                                transition: 'all 0.3s'
+                            }} className="hover:scale-105">Sign Up</Link>
+                        </>
+                    )}
                 </div>
             </nav>
 

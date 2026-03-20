@@ -1,141 +1,155 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Zap, ExternalLink, ShieldCheck, AlertCircle, Info, Lock } from 'lucide-react';
+import { Zap, ExternalLink, ShieldCheck, AlertCircle, Info, Lock, ArrowRight, CheckCircle2 } from 'lucide-react';
+import AdBanner from '../components/AdBanner';
 
 const RedirectPage = () => {
-  const [timeLeft, setTimeLeft] = useState(8);
-  const [ready, setReady] = useState(false);
+  const [step, setStep] = useState(1);
+  const [timeLeft, setTimeLeft] = useState(15);
+  const [canProceed, setCanProceed] = useState(false);
   const [searchParams] = useSearchParams();
   const targetUrl = searchParams.get('target');
 
   useEffect(() => {
-    if (timeLeft > 0) {
-      const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
-      return () => clearTimeout(timer);
-    } else {
-      setReady(true);
+    let timer;
+    if (step === 2 && timeLeft > 0) {
+      timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
+    } else if (step === 2 && timeLeft === 0) {
+      setCanProceed(true);
     }
-  }, [timeLeft]);
+    return () => clearTimeout(timer);
+  }, [step, timeLeft]);
 
-  const handleSkip = () => {
+  const handleNextStep = () => {
+    setStep(2);
+    // Trigger a popunder/vignette if needed here
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleFinalRedirect = () => {
     if (targetUrl) {
       window.location.href = decodeURIComponent(targetUrl);
-    } else {
-      alert('Security violation: Destination link missing!');
     }
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#0a0a0c', color: 'white', fontFamily: "'Inter', sans-serif" }}>
-      {/* Background Accents */}
-      <div style={{ position: 'fixed', top: '20%', left: '10%', width: '400px', height: '400px', background: 'var(--primary)', filter: 'blur(150px)', opacity: 0.15, borderRadius: '50%', zIndex: 0 }}></div>
-      <div style={{ position: 'fixed', bottom: '10%', right: '10%', width: '300px', height: '300px', background: '#4c1d95', filter: 'blur(150px)', opacity: 0.1, borderRadius: '50%', zIndex: 0 }}></div>
+    <div style={{ minHeight: '100vh', background: '#050505', color: 'white', fontFamily: "'Inter', sans-serif", display: 'flex', flexDirection: 'column' }}>
+      {/* Dynamic Background */}
+      <div style={{ position: 'fixed', top: '-10%', left: '-10%', width: '50%', height: '50%', background: 'radial-gradient(circle, rgba(113,88,226,0.15) 0%, transparent 70%)', filter: 'blur(100px)', pointerEvents: 'none' }}></div>
+      <div style={{ position: 'fixed', bottom: '-10%', right: '-10%', width: '50%', height: '50%', background: 'radial-gradient(circle, rgba(76,29,149,0.1) 0%, transparent 70%)', filter: 'blur(100px)', pointerEvents: 'none' }}></div>
 
-      <nav style={{ width: '100%', padding: '2rem 1.5rem', display: 'flex', justifyContent: 'center', zIndex: 10 }}>
-         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
-            <div style={{ background: 'var(--primary)', padding: '0.6rem', borderRadius: '12px' }}>
-              <Zap size={24} color="white" fill="white" />
+      <nav style={{ padding: '1.5rem 2rem', borderBottom: '1px solid rgba(255,255,255,0.05)', backdropFilter: 'blur(10px)', sticky: 'top', zIndex: 100 }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
+            <div style={{ background: '#7158E2', padding: '0.5rem', borderRadius: '10px' }}>
+              <Zap size={22} color="white" fill="white" />
             </div>
-          <span style={{ fontSize: '1.625rem', fontWeight: '950', color: 'white', letterSpacing: '-0.04em' }}>Wallgo<span className="text-primary-light"> Links</span></span>
+            <span style={{ fontSize: '1.5rem', fontWeight: '900', letterSpacing: '-0.04em' }}>Wallgo<span style={{ color: '#7158E2' }}>Links</span></span>
           </Link>
+          <div style={{ fontSize: '0.75rem', fontWeight: '700', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Secure Gateway v2.4</div>
+        </div>
       </nav>
 
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem', zIndex: 10 }}>
-        {/* Ad Space Top */}
-        <div style={{ marginBottom: '3rem', width: '100%', maxWidth: '728px', height: '90px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-           <span style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.75rem', fontWeight: '700', letterSpacing: '0.1em' }}>SPONSORED CONTENT</span>
+      <main style={{ flex: 1, padding: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', zIndex: 10 }}>
+        
+        {/* Top Banner Ad */}
+        <div style={{ marginBottom: '2rem' }}>
+          <AdBanner id="fc4c80a53247a4cd577428a7e29741d0" format="iframe" height={90} width={728} />
         </div>
 
         <div style={{ 
           width: '100%', 
-          maxWidth: '540px', 
-          background: 'rgba(255,255,255,0.01)', 
-          backdropFilter: 'blur(30px)', 
-          border: '1px solid rgba(255,255,255,0.08)', 
+          maxWidth: '600px', 
+          background: 'rgba(255,255,255,0.02)', 
+          backdropFilter: 'blur(40px)', 
+          border: '1px solid rgba(255,255,255,0.1)', 
           borderRadius: '32px', 
-          padding: '3.5rem 2.5rem', 
+          padding: '3rem 2rem',
           textAlign: 'center',
-          boxShadow: '0 40px 100px rgba(0,0,0,0.4)'
+          boxShadow: '0 30px 60px rgba(0,0,0,0.5)'
         }}>
-          <div style={{ color: 'var(--primary)', fontWeight: '800', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.2em', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-             <Lock size={14} /> SECURE GATEWAY
-          </div>
-          <h2 style={{ fontSize: '1.875rem', fontWeight: '900', color: 'white', marginBottom: '1rem', letterSpacing: '-0.02em' }}>
-            Verification Required
-          </h2>
-          <p style={{ color: 'rgba(255,255,255,0.5)', marginBottom: '3rem', fontSize: '1rem', fontWeight: '500', lineHeight: '1.6' }}>
-            Please wait while our security protocols validate your destination link for potential threats.
-          </p>
-
-          {/* Luxury Timer Integration */}
-          <div style={{ position: 'relative', display: 'inline-block', marginBottom: '3.5rem' }}>
-            <svg width="140" height="140" viewBox="0 0 140 140">
-              <circle cx="70" cy="70" r="64" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="4" />
-              <circle cx="70" cy="70" r="64" fill="none" stroke="var(--primary)" strokeWidth="6" 
-                strokeDasharray="402.12" 
-                strokeDashoffset={402.12 - (402.12 * (8 - timeLeft) / 8)}
-                strokeLinecap="round"
-                style={{ transition: 'stroke-dashoffset 1s linear', transform: 'rotate(-90deg)', transformOrigin: 'center' }}
-              />
-            </svg>
-            <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
-              {timeLeft > 0 ? (
-                <div style={{ fontSize: '3rem', fontWeight: '900', color: 'white' }}>{timeLeft}</div>
-              ) : (
-                <div style={{ background: '#10b981', padding: '0.75rem', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 30px rgba(16,185,129,0.3)' }}>
-                   <ShieldCheck size={40} color="white" />
+          {step === 1 ? (
+            <>
+              <div style={{ display: 'inline-flex', padding: '1rem', background: 'rgba(113,88,226,0.1)', borderRadius: '24px', color: '#7158E2', marginBottom: '1.5rem' }}>
+                <ShieldCheck size={40} />
+              </div>
+              <h2 style={{ fontSize: '2rem', fontWeight: '900', marginBottom: '1rem' }}>User Verification</h2>
+              <p style={{ color: 'rgba(255,255,255,0.5)', marginBottom: '2.5rem', lineHeight: '1.6' }}>
+                To protect our network from automated traffic, please click the button below to prove you are human.
+              </p>
+              
+              <button 
+                onClick={handleNextStep}
+                style={{ 
+                  width: '100%', padding: '1.25rem', borderRadius: '16px', border: 'none', background: '#7158E2', color: 'white', fontSize: '1.125rem', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', transition: '0.3s'
+                }}
+              >
+                CLICK HERE TO VERIFY <ArrowRight size={20} />
+              </button>
+            </>
+          ) : (
+            <>
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2.5rem' }}>
+                <div style={{ position: 'relative', width: '120px', height: '120px' }}>
+                  <svg width="120" height="120" viewBox="0 0 120 120">
+                    <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="6" />
+                    <circle cx="60" cy="60" r="54" fill="none" stroke="#7158E2" strokeWidth="6" 
+                      strokeDasharray="339.29" 
+                      strokeDashoffset={339.29 - (339.29 * (15 - timeLeft) / 15)}
+                      strokeLinecap="round"
+                      style={{ transition: 'stroke-dashoffset 1s linear', transform: 'rotate(-90deg)', transformOrigin: 'center' }}
+                    />
+                  </svg>
+                  <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', fontSize: '2.5rem', fontWeight: '900' }}>
+                    {timeLeft > 0 ? timeLeft : <CheckCircle2 size={48} color="#10b981" />}
+                  </div>
                 </div>
-              )}
-            </div>
-          </div>
+              </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            <button 
-              className={`btn ${ready ? 'btn-primary' : 'btn-dark'}`} 
-              disabled={!ready}
-              onClick={handleSkip}
-              style={{ 
-                padding: '1.25rem', 
-                width: '100%', 
-                fontSize: '1.125rem', 
-                fontWeight: '900', 
-                borderRadius: '18px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.75rem',
-                border: ready ? 'none' : '1px solid rgba(255,255,255,0.1)',
-                color: ready ? 'white' : 'rgba(255,255,255,0.3)'
-              }}
-            >
-              {ready ? 'DECRYPT & PROCEED' : `INITIALIZING (${timeLeft}s)`}
-              {ready && <ExternalLink size={20} />}
-            </button>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: 'rgba(255,255,255,0.4)', fontSize: '0.75rem', fontWeight: '700' }}>
-               <Info size={12} /> DO NOT REFRESH THIS PAGE
-            </div>
-          </div>
+              <h2 style={{ fontSize: '1.75rem', fontWeight: '900', marginBottom: '1rem' }}>
+                {timeLeft > 0 ? 'Verification in Progress...' : 'Link is Ready!'}
+              </h2>
+              <p style={{ color: 'rgba(255,255,255,0.5)', marginBottom: '2.5rem', fontSize: '0.925rem' }}>
+                {timeLeft > 0 ? 'Wait a few seconds while we safely decrypt your destination URL.' : 'Your link has been successfully verified. Click below to proceed.'}
+              </p>
+
+              <button 
+                onClick={handleFinalRedirect}
+                disabled={!canProceed}
+                style={{ 
+                  width: '100%', padding: '1.25rem', borderRadius: '16px', border: 'none', 
+                  background: canProceed ? '#10b981' : 'rgba(255,255,255,0.05)', 
+                  color: canProceed ? 'white' : 'rgba(255,255,255,0.2)', 
+                  fontSize: '1.125rem', fontWeight: '800', cursor: canProceed ? 'pointer' : 'not-allowed', 
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', transition: '0.3s',
+                  boxShadow: canProceed ? '0 10px 30px rgba(16,185,129,0.3)' : 'none'
+                }}
+              >
+                {canProceed ? 'GET LINK NOW' : `PLEASE WAIT (${timeLeft}s)`}
+                <ExternalLink size={20} />
+              </button>
+            </>
+          )}
         </div>
 
-        {/* Ad Space Bottom */}
-        <div style={{ marginTop: '4rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', width: '100%', maxWidth: '800px' }}>
-           {[1, 2].map(i => (
-             <div key={i} style={{ height: '250px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ color: 'rgba(255,255,255,0.1)', fontSize: '0.7rem', fontWeight: '800' }}>AD UNIT 300x250</span>
-             </div>
-           ))}
+        {/* Bottom Banner Ads */}
+        <div style={{ marginTop: '3rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', width: '100%', maxWidth: '900px' }}>
+          {[1, 2].map(i => (
+            <div key={i} style={{ padding: '10px', background: 'rgba(255,255,255,0.01)', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.08)' }}>
+               <AdBanner id="3334f040539d82d83a45dcee7b1e54f2" format="iframe" height={250} width={300} />
+            </div>
+          ))}
         </div>
+
       </main>
 
-      <footer style={{ width: '100%', padding: '3rem', textAlign: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', background: '#08080a', zIndex: 10 }}>
+      <footer style={{ padding: '3rem', textAlign: 'center', background: '#080808', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
         <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '2rem', marginBottom: '1.5rem' }}>
-           {['Security Policy', 'Ad Transparency', 'Report Fraud', 'Contact Group'].map(t => (
-             <Link key={t} to="#" style={{ color: 'rgba(255,255,255,0.3)', textDecoration: 'none', fontSize: '0.8125rem', fontWeight: '700' }}>{t}</Link>
+           {['FAQ', 'Terms', 'Privacy', 'Contact'].map(t => (
+             <Link key={t} to={`/pages/${t.toLowerCase()}`} style={{ color: 'rgba(255,255,255,0.3)', textDecoration: 'none', fontSize: '0.8125rem', fontWeight: '700' }}>{t}</Link>
            ))}
         </div>
-        <div style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.75rem', fontWeight: '600' }}>
-           © 2026 Wallgo Security Infrastructure. Powered by LinkGuard™ Pro.
-        </div>
+        <p style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.75rem' }}>© 2026 Wallgo Security Mesh. All encrypted traffic is monitored.</p>
       </footer>
     </div>
   );

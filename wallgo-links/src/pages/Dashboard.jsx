@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import DashboardLayout from '../components/common/DashboardLayout';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Eye, DollarSign, Link as LinkIcon, TrendingUp, Plus, Copy, Zap, ArrowUpRight, MousePointer2, Activity, Globe, Wallet, Shield, Sparkles } from 'lucide-react';
+import { Eye, DollarSign, Link as LinkIcon, TrendingUp, Plus, Copy, Zap, ArrowUpRight, MousePointer2, Activity, Globe, Wallet, Shield, Sparkles, Users } from 'lucide-react';
 import api from '../utils/api';
 
 const StatCard = ({ icon: Icon, label, value, color, trend }) => (
@@ -37,6 +38,9 @@ const StatCard = ({ icon: Icon, label, value, color, trend }) => (
 );
 
 const Dashboard = () => {
+  const [url, setUrl] = useState('');
+  const [shortened, setShortened] = useState('');
+  const [shortening, setShortening] = useState(false);
   const [stats, setStats] = useState({
     totalViews: 0,
     totalEarnings: '0.0000',
@@ -68,8 +72,65 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
+  const handleShorten = async (e) => {
+    e.preventDefault();
+    if (!url) return;
+    setShortening(true);
+    try {
+      const res = await api.post('/links/shorten', { originalUrl: url });
+      setShortened(`${window.location.origin}/st/${res.data.alias}`);
+      fetchData();
+    } catch (err) { alert('Failed to shorten link.'); }
+    finally { setShortening(false); }
+  };
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(shortened);
+    alert('Link copied!');
+  };
+
   return (
     <DashboardLayout title="Overview">
+      {/* Quick Shortener Box */}
+      <div style={{ 
+        background: 'white', 
+        padding: '2.5rem', 
+        borderRadius: '24px', 
+        border: '1px solid #eee', 
+        marginBottom: '2.5rem',
+        boxShadow: '0 10px 40px rgba(0,0,0,0.02)'
+      }}>
+        <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '1.5rem' }}>Create New Link</h3>
+        <form onSubmit={handleShorten} style={{ display: 'flex', gap: '1rem' }}>
+          <div style={{ flex: 1, position: 'relative' }}>
+            <LinkIcon size={20} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
+            <input 
+              style={{ 
+                width: '100%', padding: '1.125rem 1rem 1.125rem 3rem', borderRadius: '14px', border: '1px solid #eee', background: '#f9f9f9', fontSize: '1rem', outline: 'none'
+              }}
+              placeholder="Paste your long URL here..."
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              required
+            />
+          </div>
+          <button style={{ 
+            background: 'var(--primary)', color: 'white', border: 'none', padding: '0 2.5rem', borderRadius: '14px', fontWeight: '800', cursor: 'pointer', transition: '0.3s', display: 'flex', alignItems: 'center', gap: '0.75rem'
+          }} disabled={shortening}>
+            {shortening ? 'Shortening...' : 'SHORTEN'} <Zap size={18} fill="white" />
+          </button>
+        </form>
+
+        {shortened && (
+          <div style={{ marginTop: '1.5rem', padding: '1rem 1.5rem', background: '#F0EFFC', borderRadius: '12px', border: '1px solid #7158E230', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <code style={{ fontSize: '1rem', color: 'var(--primary)', fontWeight: '800' }}>{shortened}</code>
+            <button onClick={copyToClipboard} style={{ background: 'white', border: '1px solid #eee', padding: '0.5rem 1rem', borderRadius: '8px', cursor: 'pointer', fontWeight: '800', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Copy size={16} /> COPY
+            </button>
+          </div>
+        )}
+      </div>
+
       {/* Stats Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '2rem' }}>
         <StatCard icon={Eye} label="Total Views" value={loading ? '...' : stats.totalViews.toLocaleString()} color="#7158E2" trend="12" />

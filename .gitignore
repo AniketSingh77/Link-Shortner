@@ -1,0 +1,10 @@
+node_modules/
+.env
+dist/
+build/
+.DS_Store
+*.log
+out.txt
+prd_text.txt
+prd_text_utf8.txt
+SwiftLinks_PRD_v1.0.docx

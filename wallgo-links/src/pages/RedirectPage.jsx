@@ -3,7 +3,7 @@ import { useParams, useSearchParams, Link } from 'react-router-dom';
 import { 
   Zap, ExternalLink, ShieldCheck, AlertCircle, Info, Lock, 
   ArrowRight, CheckCircle2, Download, MousePointer2, 
-  ShieldAlert, Activity, ChevronRight, Clock, Shield
+  ShieldAlert, Activity, ChevronRight, Clock, Shield, DollarSign
 } from 'lucide-react';
 import AdBanner from '../components/AdBanner';
 import api from '../utils/api';

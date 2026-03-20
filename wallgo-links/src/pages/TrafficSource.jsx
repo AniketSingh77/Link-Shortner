@@ -29,7 +29,7 @@ const TrafficSource = () => {
     const deviceData = (data?.byDevice || []).map(d => ({ name: d._id || 'Unknown', value: d.clicks }));
     const countryData = data?.byCountry || [];
     const browserData = (data?.byBrowser || []).map(b => ({ name: b._id || 'Other', clicks: b.clicks }));
-    const totalClicks = countryData.reduce((s, c) => s + c.clicks, 0);
+    const totalClicks = (countryData || []).reduce((s, c) => s + c.clicks, 0);
 
     return (
         <DashboardLayout title="Traffic Statistics">

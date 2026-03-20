@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import AdminLayout from '../../components/common/AdminLayout';
 import { 
   Users, Settings, CreditCard, Globe, FileText, BarChart2, 
@@ -77,7 +78,10 @@ const UsersSection = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        api.get('/admin/users').then(r => setUsers(r.data)).finally(() => setLoading(false));
+        setLoading(true);
+        api.get('/admin/users').then(r => {
+            setUsers(Array.isArray(r.data) ? r.data : (r.data.users || []));
+        }).finally(() => setLoading(false));
     }, []);
 
     if (loading) return <div style={{ textAlign: 'center', padding: '5rem' }}><Activity size={40} className="spin" /></div>;
@@ -230,7 +234,8 @@ const PayoutsSection = () => {
     const fetchPayouts = async () => {
         try {
             const res = await api.get('/admin/payouts');
-            setPayouts(res.data);
+            const data = res.data;
+            setPayouts(Array.isArray(data) ? data : (data.payouts || []));
         } catch (err) {} finally { setLoading(false); }
     };
 
@@ -484,9 +489,10 @@ const PagesSection = () => {
 
 const AdminDashboard = () => {
     const [tab, setTab] = useState('overview');
-    const path = window.location.pathname;
+    const location = useLocation();
 
     useEffect(() => {
+        const path = location.pathname;
         if (path.includes('/users')) setTab('users');
         else if (path.includes('/links')) setTab('links');
         else if (path.includes('/payouts')) setTab('payouts');
@@ -494,7 +500,7 @@ const AdminDashboard = () => {
         else if (path.includes('/pages')) setTab('pages');
         else if (path.includes('/settings')) setTab('settings');
         else setTab('overview');
-    }, [path]);
+    }, [location.pathname]);
 
     return (
         <AdminLayout title={tab === 'overview' ? 'Administration Hub' : tab.charAt(0).toUpperCase() + tab.slice(1)}>

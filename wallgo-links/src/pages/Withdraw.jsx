@@ -6,8 +6,8 @@ import api from '../utils/api';
 const StatCard = ({ icon: Icon, label, value, color, subText }) => (
   <div style={{ 
     padding: '1.5rem', 
-    background: '#ffffff',
-    border: '1px solid #eee', 
+    background: 'var(--bg-card)',
+    border: '1px solid var(--border)', 
     borderRadius: '16px',
     display: 'flex',
     alignItems: 'center',
@@ -22,9 +22,9 @@ const StatCard = ({ icon: Icon, label, value, color, subText }) => (
       <Icon size={24} />
     </div>
     <div>
-        <div style={{ fontSize: '0.875rem', fontWeight: '700', color: '#666', marginBottom: '0.25rem' }}>{label}</div>
-        <div style={{ fontSize: '1.5rem', fontWeight: '800', color: '#1a1a1a' }}>{value}</div>
-        {subText && <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#aaa' }}>{subText}</div>}
+        <div style={{ fontSize: '0.875rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>{label}</div>
+        <div style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--text)' }}>{value}</div>
+        {subText && <div style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--text-light)' }}>{subText}</div>}
     </div>
   </div>
 );
@@ -68,11 +68,11 @@ const Withdraw = () => {
 
   const statusBadge = (status) => {
     const styles = {
-      Pending: { bg: '#fffbeb', text: '#f59e0b', border: '#fef3c7' },
-      Complete: { bg: '#ecfdf5', text: '#10b981', border: '#d1fae5' },
-      Cancelled: { bg: '#fef2f2', text: '#ef4444', border: '#fee2e2' }
+      Pending: { bg: 'rgba(245, 158, 11, 0.15)', text: '#f59e0b', border: 'rgba(245, 158, 11, 0.2)' },
+      Complete: { bg: 'rgba(16, 185, 129, 0.15)', text: '#10b981', border: 'rgba(16, 185, 129, 0.2)' },
+      Cancelled: { bg: 'rgba(239, 68, 68, 0.15)', text: '#ef4444', border: 'rgba(239, 68, 68, 0.2)' }
     };
-    const s = styles[status] || { bg: '#f9f9f9', text: '#aaa', border: '#eee' };
+    const s = styles[status] || { bg: 'var(--bg-white)', text: 'var(--text-light)', border: 'var(--border)' };
     
     return (
       <span style={{ 
@@ -98,9 +98,9 @@ const Withdraw = () => {
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '2rem', marginBottom: '3rem' }}>
-        <div style={{ background: 'white', padding: '2.5rem', borderRadius: '24px', border: '1px solid #eee' }}>
-          <h3 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '1rem' }}>Request Withdrawal</h3>
-          <p style={{ color: '#666', marginBottom: '2.5rem' }}>Transfer your earnings to your bank account or wallet.</p>
+        <div style={{ background: 'var(--bg-card)', padding: '2.5rem', borderRadius: '24px', border: '1px solid var(--border)' }}>
+          <h3 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '1rem', color: 'var(--text)' }}>Request Withdrawal</h3>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '2.5rem' }}>Transfer your earnings to your bank account or wallet.</p>
 
           {msg.text && (
             <div style={{ 
@@ -111,22 +111,22 @@ const Withdraw = () => {
               alignItems: 'center', 
               gap: '0.75rem',
               fontWeight: '700',
-              background: msg.type === 'error' ? '#fef2f2' : '#ecfdf5',
+              background: msg.type === 'error' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)',
               color: msg.type === 'error' ? '#ef4444' : '#10b981',
-              border: `1px solid ${msg.type === 'error' ? '#fee2e2' : '#d1fae5'}`,
+              border: `1px solid ${msg.type === 'error' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(16, 185, 129, 0.2)'}`,
             }}>
               {msg.type === 'error' ? <AlertCircle size={20} /> : <CheckCircle size={20} />} {msg.text}
             </div>
           )}
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2.5rem' }}>
-            <div style={{ background: '#f8f9ff', padding: '1.5rem', borderRadius: '16px', border: '1px solid #eef2ff' }}>
-              <div style={{ fontSize: '0.75rem', fontWeight: '700', color: '#666', marginBottom: '0.5rem' }}>CURRENT BALANCE</div>
-              <div style={{ fontSize: '2rem', fontWeight: '900', color: '#7158E2' }}>${stats.balance}</div>
+            <div style={{ background: 'var(--primary-light)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--primary)' }}>
+              <div style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--primary)', marginBottom: '0.5rem' }}>CURRENT BALANCE</div>
+              <div style={{ fontSize: '2rem', fontWeight: '900', color: 'var(--primary)' }}>${stats.balance}</div>
             </div>
-            <div style={{ background: '#f9f9f9', padding: '1.5rem', borderRadius: '16px', border: '1px solid #eee' }}>
-              <div style={{ fontSize: '0.75rem', fontWeight: '700', color: '#666', marginBottom: '0.5rem' }}>MINIMUM WITHDRAWAL</div>
-              <div style={{ fontSize: '2rem', fontWeight: '900', color: '#1a1a1a' }}>$5.00</div>
+            <div style={{ background: 'var(--bg-alt)', padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--border)' }}>
+              <div style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>MINIMUM WITHDRAWAL</div>
+              <div style={{ fontSize: '2rem', fontWeight: '900', color: 'var(--text)' }}>$5.00</div>
             </div>
           </div>
 
@@ -155,7 +155,7 @@ const Withdraw = () => {
           </button>
         </div>
 
-        <div style={{ background: '#7158E2', padding: '2.5rem', borderRadius: '24px', color: 'white' }}>
+        <div style={{ background: 'linear-gradient(135deg, #7158E2 0%, #5a45c7 100%)', padding: '2.5rem', borderRadius: '24px', color: 'white' }}>
           <h4 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <Shield size={24} /> Payout Terms
           </h4>
@@ -174,30 +174,30 @@ const Withdraw = () => {
         </div>
       </div>
 
-      <div style={{ background: 'white', borderRadius: '24px', border: '1px solid #eee', overflow: 'hidden' }}>
-        <div style={{ padding: '2rem', borderBottom: '1px solid #eee' }}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: '800' }}>Withdrawal History</h3>
+      <div style={{ background: 'var(--bg-card)', borderRadius: '24px', border: '1px solid var(--border)', overflow: 'hidden' }}>
+        <div style={{ padding: '2rem', borderBottom: '1px solid var(--border)' }}>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--text)' }}>Withdrawal History</h3>
         </div>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ background: '#f9f9f9', borderBottom: '1px solid #eee' }}>
-                <th style={{ padding: '1rem 2rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '800', color: '#aaa', textTransform: 'uppercase' }}>Date</th>
-                <th style={{ padding: '1rem 2rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '800', color: '#aaa', textTransform: 'uppercase' }}>Amount</th>
-                <th style={{ padding: '1rem 2rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '800', color: '#aaa', textTransform: 'uppercase' }}>Method</th>
-                <th style={{ padding: '1rem 2rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '800', color: '#aaa', textTransform: 'uppercase' }}>Status</th>
+              <tr style={{ background: 'var(--bg-alt)', borderBottom: '1px solid var(--border)' }}>
+                <th style={{ padding: '1rem 2rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-light)', textTransform: 'uppercase' }}>Date</th>
+                <th style={{ padding: '1rem 2rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-light)', textTransform: 'uppercase' }}>Amount</th>
+                <th style={{ padding: '1rem 2rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-light)', textTransform: 'uppercase' }}>Method</th>
+                <th style={{ padding: '1rem 2rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-light)', textTransform: 'uppercase' }}>Status</th>
               </tr>
             </thead>
             <tbody>
               {(history.payouts || []).length === 0 ? (
-                <tr><td colSpan="4" style={{ textAlign: 'center', padding: '4rem', color: '#aaa' }}>No withdrawal history found.</td></tr>
+                <tr><td colSpan="4" style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>No withdrawal history found.</td></tr>
               ) : (history.payouts || []).map(p => (
-                <tr key={p._id} style={{ borderBottom: '1px solid #f9f9f9' }}>
-                  <td style={{ padding: '1.5rem 2rem', fontWeight: '600' }}>{new Date(p.createdAt).toLocaleDateString()}</td>
+                <tr key={p._id} style={{ borderBottom: '1px solid var(--bg-alt)' }}>
+                  <td style={{ padding: '1.5rem 2rem', fontWeight: '600', color: 'var(--text)' }}>{new Date(p.createdAt).toLocaleDateString()}</td>
                   <td style={{ padding: '1.5rem 2rem', fontWeight: '800', color: '#10b981' }}>${p.amount.toFixed(4)}</td>
                   <td style={{ padding: '1.5rem 2rem' }}>
-                    <div style={{ fontWeight: '700' }}>{p.method}</div>
-                    <div style={{ fontSize: '0.75rem', color: '#aaa' }}>{p.account}</div>
+                    <div style={{ fontWeight: '700', color: 'var(--text)' }}>{p.method}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-light)' }}>{p.account}</div>
                   </td>
                   <td style={{ padding: '1.5rem 2rem' }}>{statusBadge(p.status)}</td>
                 </tr>

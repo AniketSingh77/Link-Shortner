@@ -23,17 +23,18 @@ const AdminLayout = ({ children, title }) => {
   ];
 
   return (
-    <div style={{ background: 'var(--bg-alt)', minHeight: '100vh', display: 'flex', color: 'var(--text)' }}>
+    <div style={{ background: 'var(--bg-alt)', minHeight: '100vh', display: 'flex', color: 'var(--text)', fontFamily: "'Inter', sans-serif" }}>
       {/* Admin Sidebar */}
       <aside style={{ 
         width: '280px', 
-        background: isDarkMode ? '#0f0f12' : '#1a1a2e', 
+        background: 'var(--bg-sidebar)', 
         color: '#fff',
         position: 'fixed',
         top: 0, bottom: 0, left: 0,
         zIndex: 1000,
-        transition: '0.3s'
-      }} className="admin-sidebar" id="admin-sidebar">
+        transition: '0.3s',
+        borderRight: '1px solid var(--border)'
+      }} className={`admin-sidebar ${mobileOpen ? 'open' : ''}`}>
         <div style={{ padding: '2rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
             <Link to="/admin" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
                 <div style={{ background: '#7c3aed', padding: '0.5rem', borderRadius: '10px' }}>
@@ -50,7 +51,7 @@ const AdminLayout = ({ children, title }) => {
                     alignItems: 'center',
                     gap: '1rem',
                     padding: '0.875rem 1.5rem',
-                    color: isAt(item.path) ? '#a78bfa' : '#94a3b8',
+                    color: isAt(item.path) ? '#a78bfa' : 'rgba(255,255,255,0.6)',
                     background: isAt(item.path) ? 'rgba(167,139,250,0.1)' : 'transparent',
                     borderLeft: `4px solid ${isAt(item.path) ? '#a78bfa' : 'transparent'}`,
                     textDecoration: 'none',
@@ -68,9 +69,10 @@ const AdminLayout = ({ children, title }) => {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.75rem',
-                color: '#94a3b8',
+                color: 'rgba(255,255,255,0.5)',
                 textDecoration: 'none',
-                fontSize: '0.875rem'
+                fontSize: '0.875rem',
+                fontWeight: '700'
             }}>
                 <Layout size={18} /> Exit Admin
             </Link>
@@ -91,15 +93,15 @@ const AdminLayout = ({ children, title }) => {
               top: 0, zIndex: 900
           }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <button onClick={() => setMobileOpen(!mobileOpen)} style={{ display: 'none', background: 'transparent', border: 'none', color: 'var(--text)' }} className="mobile-toggle">
+                  <button onClick={() => setMobileOpen(!mobileOpen)} style={{ display: 'none', background: 'transparent', border: 'none', color: 'var(--text)', cursor: 'pointer' }} className="mobile-toggle">
                       <Menu size={24} />
                   </button>
-                  <h2 style={{ fontSize: '1.25rem', fontWeight: '800' }}>{title}</h2>
+                  <h2 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--text)' }}>{title}</h2>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
                   <button onClick={toggleTheme} style={{ 
-                      background: 'var(--bg)', 
+                      background: 'var(--bg-alt)', 
                       border: '1px solid var(--border)', 
                       color: 'var(--text)', 
                       width: '40px', height: '40px', 
@@ -111,7 +113,7 @@ const AdminLayout = ({ children, title }) => {
                   </button>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                       <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontSize: '0.875rem', fontWeight: '800' }}>Admin</div>
+                          <div style={{ fontSize: '0.875rem', fontWeight: '800', color: 'var(--text)' }}>Admin</div>
                           <div style={{ fontSize: '0.75rem', color: 'var(--text-light)' }}>Super Admin</div>
                       </div>
                       <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: '800' }}>A</div>

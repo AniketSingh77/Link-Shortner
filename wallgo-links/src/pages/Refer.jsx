@@ -6,8 +6,8 @@ import api from '../utils/api';
 const StatCard = ({ icon: Icon, label, value, color, subText }) => (
   <div style={{ 
     padding: '1.5rem', 
-    background: '#ffffff',
-    border: '1px solid #eee', 
+    background: 'var(--bg-card)',
+    border: '1px solid var(--border)', 
     borderRadius: '16px',
     display: 'flex',
     alignItems: 'center',
@@ -22,9 +22,9 @@ const StatCard = ({ icon: Icon, label, value, color, subText }) => (
       <Icon size={24} />
     </div>
     <div>
-        <div style={{ fontSize: '0.875rem', fontWeight: '700', color: '#666', marginBottom: '0.25rem' }}>{label}</div>
-        <div style={{ fontSize: '1.5rem', fontWeight: '800', color: '#1a1a1a' }}>{value}</div>
-        {subText && <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#aaa' }}>{subText}</div>}
+        <div style={{ fontSize: '0.875rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>{label}</div>
+        <div style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--text)' }}>{value}</div>
+        {subText && <div style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--text-light)' }}>{subText}</div>}
     </div>
   </div>
 );
@@ -55,7 +55,7 @@ const Refer = () => {
   return (
     <DashboardLayout title="Referrals">
       <div style={{ 
-        background: '#7158E2', 
+        background: 'linear-gradient(135deg, #7158E2 0%, #5a45c7 100%)', 
         padding: '4rem', 
         borderRadius: '24px', 
         color: 'white',
@@ -74,20 +74,20 @@ const Refer = () => {
             </p>
 
             <div style={{ 
-                background: 'white', 
+                background: 'var(--bg-white)', 
                 padding: '0.5rem', 
                 borderRadius: '12px', 
                 display: 'flex', 
                 maxWidth: '600px', 
                 margin: '0 auto',
-                boxShadow: '0 10px 30px rgba(0,0,0,0.1)'
+                boxShadow: 'var(--shadow)'
             }}>
                 <div style={{ 
                     flex: 1, 
                     display: 'flex', 
                     alignItems: 'center', 
                     paddingLeft: '1.5rem', 
-                    color: '#666',
+                    color: 'var(--text-muted)',
                     fontWeight: '700',
                     fontSize: '0.9375rem',
                     overflow: 'hidden',
@@ -128,8 +128,8 @@ const Refer = () => {
         <StatCard icon={Network} label="Commission Rate" value="20.0%" color="#f59e0b" />
       </div>
 
-      <div style={{ background: 'white', padding: '3rem', borderRadius: '24px', border: '1px solid #eee' }}>
-          <h3 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '3rem', textAlign: 'center' }}>How Referrals Work</h3>
+      <div style={{ background: 'var(--bg-card)', padding: '3rem', borderRadius: '24px', border: '1px solid var(--border)' }}>
+          <h3 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '3rem', textAlign: 'center', color: 'var(--text)' }}>How Referrals Work</h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '4rem' }}>
               {[
                   { icon: Share2, title: 'Share Link', desc: 'Copy your unique referral link and share it with your audience or friends.', color: '#7158E2' },
@@ -150,8 +150,8 @@ const Refer = () => {
                       }}>
                           <step.icon size={32} />
                       </div>
-                      <h4 style={{ fontSize: '1.125rem', fontWeight: '800', marginBottom: '1rem' }}>{step.title}</h4>
-                      <p style={{ color: '#666', fontSize: '0.9375rem', lineHeight: '1.6' }}>{step.desc}</p>
+                      <h4 style={{ fontSize: '1.125rem', fontWeight: '800', marginBottom: '1rem', color: 'var(--text)' }}>{step.title}</h4>
+                      <p style={{ color: 'var(--text-muted)', fontSize: '0.9375rem', lineHeight: '1.6' }}>{step.desc}</p>
                   </div>
               ))}
           </div>

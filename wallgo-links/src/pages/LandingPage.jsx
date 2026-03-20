@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Zap, Globe, Shield, DollarSign, Users, BarChart2, ChevronRight, Copy, Check, MessageSquare, Mail, Youtube, Instagram, Twitter, Send, Sparkles, ArrowRight, ShieldCheck, Activity, Award, Play, MousePointer2, TrendingUp, ZapOff } from 'lucide-react';
+import { Zap, Globe, Shield, DollarSign, Users, BarChart2, ChevronRight, Copy, Check, MessageSquare, Mail, Youtube, Instagram, Twitter, Send, Sparkles, ArrowRight, ShieldCheck, Activity, Award, Play, MousePointer2, TrendingUp, ZapOff, Sun, Moon } from 'lucide-react';
 import api from '../utils/api';
+import { useTheme } from '../context/ThemeContext';
 
 const LandingPage = () => {
+    const { isDarkMode, toggleTheme } = useTheme();
     const [url, setUrl] = useState('');
     const [result, setResult] = useState('');
     const [loading, setLoading] = useState(false);
@@ -33,7 +35,7 @@ const LandingPage = () => {
     };
 
     return (
-        <div style={{ background: '#ffffff', color: '#1a1a1a', fontFamily: "'Inter', sans-serif", overflowX: 'hidden' }}>
+        <div style={{ background: 'var(--bg)', color: 'var(--text)', fontFamily: "'Inter', sans-serif", overflowX: 'hidden' }}>
 
             {/* ====== NAVBAR ====== */}
             <nav style={{
@@ -47,19 +49,33 @@ const LandingPage = () => {
                 left: 0,
                 right: 0,
                 zIndex: 1000,
-                background: 'rgba(255, 255, 255, 0.95)',
+                background: 'var(--bg-white)',
+                opacity: 0.95,
                 backdropFilter: 'blur(10px)',
-                borderBottom: '1px solid #f0f0f0'
+                borderBottom: '1px solid var(--border)'
             }}>
                 <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
                     <div style={{ background: 'var(--primary)', padding: '0.5rem', borderRadius: '10px' }}>
                         <Zap size={20} color="white" fill="white" />
                     </div>
-                    <span style={{ fontSize: '1.5rem', fontWeight: '800', color: '#1a1a1a', letterSpacing: '-0.02em' }}>Wallgo<span style={{ color: 'var(--primary)' }}>Links</span></span>
+                    <span style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--text)', letterSpacing: '-0.02em' }}>Wallgo<span style={{ color: 'var(--primary)' }}>Links</span></span>
                 </Link>
 
-                <div style={{ display: 'flex', gap: '2.5rem', alignItems: 'center' }}>
-                    <Link to="/payout-rates" style={{ color: '#666', fontWeight: '600', fontSize: '0.9375rem', textDecoration: 'none' }}>Payout Rates</Link>
+                <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
+                    <Link to="/payout-rates" style={{ color: 'var(--text-muted)', fontWeight: '600', fontSize: '0.9375rem', textDecoration: 'none' }}>Payout Rates</Link>
+                    
+                    <button onClick={toggleTheme} style={{ 
+                        background: 'var(--bg-alt)', 
+                        border: '1px solid var(--border)', 
+                        color: 'var(--text)', 
+                        width: '40px', height: '40px', 
+                        borderRadius: '10px', 
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        cursor: 'pointer'
+                    }}>
+                        {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+                    </button>
+
                     {localStorage.getItem('token') ? (
                         <Link to="/dashboard" style={{
                             background: 'var(--primary)',
@@ -72,7 +88,7 @@ const LandingPage = () => {
                         }}>Dashboard</Link>
                     ) : (
                         <>
-                            <Link to="/login" style={{ color: '#666', fontWeight: '600', fontSize: '0.9375rem', textDecoration: 'none' }}>Login</Link>
+                            <Link to="/login" style={{ color: 'var(--text-muted)', fontWeight: '600', fontSize: '0.9375rem', textDecoration: 'none' }}>Login</Link>
                             <Link to="/register" style={{
                                 background: 'var(--primary)',
                                 color: 'white',
@@ -80,9 +96,8 @@ const LandingPage = () => {
                                 borderRadius: '30px',
                                 fontWeight: '700',
                                 fontSize: '0.9375rem',
-                                textDecoration: 'none',
-                                transition: 'all 0.3s'
-                            }} className="hover:scale-105">Sign Up</Link>
+                                textDecoration: 'none'
+                            }}>Sign Up</Link>
                         </>
                     )}
                 </div>
@@ -96,14 +111,14 @@ const LandingPage = () => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 textAlign: 'center',
-                background: 'linear-gradient(180deg, #f8f9ff 0%, #ffffff 100%)'
+                background: isDarkMode ? 'var(--bg)' : 'linear-gradient(180deg, #f8f9ff 0%, #ffffff 100%)'
             }}>
                 <div style={{ maxWidth: '900px' }}>
                     <div style={{
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: '0.5rem',
-                        background: '#eef2ff',
+                        background: 'var(--primary-light)',
                         color: 'var(--primary)',
                         padding: '0.5rem 1.25rem',
                         borderRadius: '30px',
@@ -116,7 +131,7 @@ const LandingPage = () => {
                     <h1 style={{
                         fontSize: '4.5rem',
                         fontWeight: '900',
-                        color: '#1a1a1a',
+                        color: 'var(--text)',
                         lineHeight: '1.1',
                         marginBottom: '1.5rem',
                         letterSpacing: '-0.04em'
@@ -126,7 +141,7 @@ const LandingPage = () => {
                     </h1>
                     <p style={{
                         fontSize: '1.25rem',
-                        color: '#666',
+                        color: 'var(--text-muted)',
                         lineHeight: '1.6',
                         marginBottom: '3.5rem',
                         maxWidth: '700px',
@@ -137,14 +152,14 @@ const LandingPage = () => {
                     </p>
 
                     <form onSubmit={handleShorten} style={{
-                        background: 'white',
+                        background: 'var(--bg-card)',
                         padding: '0.625rem',
                         borderRadius: '50px',
                         display: 'flex',
-                        boxShadow: '0 20px 40px rgba(113, 88, 226, 0.1)',
+                        boxShadow: 'var(--shadow)',
                         maxWidth: '700px',
                         margin: '0 auto 4rem',
-                        border: '1px solid #eee'
+                        border: '1px solid var(--border)'
                     }}>
                         <input
                             type="url"
@@ -158,7 +173,8 @@ const LandingPage = () => {
                                 outline: 'none',
                                 padding: '0 2rem',
                                 fontSize: '1.125rem',
-                                color: '#1a1a1a',
+                                background: 'transparent',
+                                color: 'var(--text)',
                                 width: '100%'
                             }}
                         />
@@ -183,7 +199,7 @@ const LandingPage = () => {
 
                     {result && (
                         <div style={{
-                            background: '#f8f9ff',
+                            background: 'var(--primary-light)',
                             border: '2px dashed var(--primary)',
                             borderRadius: '24px',
                             padding: '1.5rem',
@@ -226,10 +242,10 @@ const LandingPage = () => {
             </section>
 
             {/* ====== HOW IT WORKS ====== */}
-            <section style={{ padding: '100px 8%', background: '#ffffff' }}>
+            <section style={{ padding: '100px 8%', background: 'var(--bg)' }}>
                 <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
                     <h2 style={{ fontSize: '3rem', fontWeight: '900', marginBottom: '1.5rem' }}>How it works?</h2>
-                    <p style={{ color: '#666', fontSize: '1.125rem' }}>Start earning in 3 simple steps</p>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '1.125rem' }}>Start earning in 3 simple steps</p>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '3rem' }}>
@@ -241,7 +257,8 @@ const LandingPage = () => {
                         <div key={i} style={{
                             padding: '3rem',
                             borderRadius: '32px',
-                            background: '#F8F9FF',
+                            background: 'var(--bg-alt)',
+                            border: '1px solid var(--border)',
                             textAlign: 'center',
                             transition: '0.3s'
                         }} className="hover-lift">
@@ -259,15 +276,15 @@ const LandingPage = () => {
                             }}>
                                 <step.icon size={32} />
                             </div>
-                            <h3 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '1rem' }}>{step.title}</h3>
-                            <p style={{ color: '#666', lineHeight: '1.6' }}>{step.desc}</p>
+                            <h3 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '1rem', color: 'var(--text)' }}>{step.title}</h3>
+                            <p style={{ color: 'var(--text-muted)', lineHeight: '1.6' }}>{step.desc}</p>
                         </div>
                     ))}
                 </div>
             </section>
 
             {/* ====== FEATURES SECTION ====== */}
-            <section style={{ padding: '100px 8%', background: '#F8F9FF' }}>
+            <section style={{ padding: '100px 8%', background: 'var(--bg-alt)' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6rem', alignItems: 'center' }}>
                     <div>
                         <h2 style={{ fontSize: '3.5rem', fontWeight: '900', lineHeight: '1.1', marginBottom: '2.5rem' }}>
@@ -284,8 +301,8 @@ const LandingPage = () => {
                                 <div key={i} style={{ display: 'flex', gap: '1.5rem' }}>
                                     <div style={{ color: 'var(--primary)', flexShrink: 0 }}><f.icon size={28} /></div>
                                     <div>
-                                        <h4 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '0.5rem' }}>{f.title}</h4>
-                                        <p style={{ color: '#666', lineHeight: '1.5' }}>{f.desc}</p>
+                                        <h4 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '0.5rem', color: 'var(--text)' }}>{f.title}</h4>
+                                        <p style={{ color: 'var(--text-muted)', lineHeight: '1.5' }}>{f.desc}</p>
                                     </div>
                                 </div>
                             ))}
@@ -293,20 +310,21 @@ const LandingPage = () => {
                     </div>
                     <div style={{ position: 'relative' }}>
                         <div style={{
-                            background: 'white',
+                            background: 'var(--bg-card)',
                             borderRadius: '40px',
                             padding: '3rem',
-                            boxShadow: '0 40px 80px rgba(0,0,0,0.05)',
+                            border: '1px solid var(--border)',
+                            boxShadow: 'var(--shadow)',
                             position: 'relative',
                             zIndex: 10
                         }}>
                              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3rem' }}>
-                                 <h3 style={{ fontSize: '1.5rem', fontWeight: '800' }}>Earnings Overview</h3>
+                                 <h3 style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--text)' }}>Earnings Overview</h3>
                                  <span style={{ color: '#10B981', fontWeight: '800' }}>+24% Increase</span>
                              </div>
                              <div style={{ height: '300px', display: 'flex', alignItems: 'flex-end', gap: '1rem' }}>
                                  {[40, 70, 45, 90, 65, 80, 55].map((h, i) => (
-                                     <div key={i} style={{ flex: 1, background: i === 3 ? 'var(--primary)' : '#eef2ff', height: `${h}%`, borderRadius: '10px' }} />
+                                     <div key={i} style={{ flex: 1, background: i === 3 ? 'var(--primary)' : 'var(--bg-white)', height: `${h}%`, borderRadius: '10px' }} />
                                  ))}
                              </div>
                         </div>
@@ -316,42 +334,42 @@ const LandingPage = () => {
             </section>
 
             {/* ====== FOOTER ====== */}
-            <footer style={{ background: '#ffffff', padding: '100px 8% 50px', borderTop: '1px solid #eee' }}>
+            <footer style={{ background: 'var(--bg)', padding: '100px 8% 50px', borderTop: '1px solid var(--border)' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1.5fr', gap: '4rem', marginBottom: '5rem' }}>
                     <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '2rem' }}>
                             <div style={{ background: 'var(--primary)', padding: '0.5rem', borderRadius: '10px' }}>
                                 <Zap size={20} color="white" fill="white" />
                             </div>
-                            <span style={{ fontSize: '1.5rem', fontWeight: '800', color: '#1a1a1a', letterSpacing: '-0.02em' }}>Wallgo<span style={{ color: 'var(--primary)' }}>Links</span></span>
+                            <span style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--text)', letterSpacing: '-0.02em' }}>Wallgo<span style={{ color: 'var(--primary)' }}>Links</span></span>
                         </div>
-                        <p style={{ color: '#666', lineHeight: '1.7', marginBottom: '2rem', maxWidth: '300px' }}>
+                        <p style={{ color: 'var(--text-muted)', lineHeight: '1.7', marginBottom: '2rem', maxWidth: '300px' }}>
                             Earn money by shortening your links. High CPM, fast payments, and trusted by thousands.
                         </p>
                         <div style={{ display: 'flex', gap: '1rem' }}>
                             {[Twitter, Instagram, Youtube, Send].map((Icon, i) => (
-                                <a key={i} href="#" style={{ color: '#aaa', transition: '0.3s' }} className="hover:text-primary"><Icon size={20} /></a>
+                                <a key={i} href="#" style={{ color: 'var(--text-light)', transition: '0.3s' }}><Icon size={20} /></a>
                             ))}
                         </div>
                     </div>
                     <div>
-                        <h4 style={{ fontWeight: '800', marginBottom: '2rem' }}>Links</h4>
+                        <h4 style={{ fontWeight: '800', marginBottom: '2rem', color: 'var(--text)' }}>Links</h4>
                         <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            <li><Link to="/payout-rates" style={{ color: '#666', textDecoration: 'none' }}>Payout Rates</Link></li>
-                            <li><Link to="/pages/terms" style={{ color: '#666', textDecoration: 'none' }}>Terms of Use</Link></li>
-                            <li><Link to="/pages/privacy" style={{ color: '#666', textDecoration: 'none' }}>Privacy Policy</Link></li>
+                            <li><Link to="/payout-rates" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>Payout Rates</Link></li>
+                            <li><Link to="/pages/terms" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>Terms of Use</Link></li>
+                            <li><Link to="/pages/privacy" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>Privacy Policy</Link></li>
                         </ul>
                     </div>
                     <div>
-                        <h4 style={{ fontWeight: '800', marginBottom: '2rem' }}>Support</h4>
+                        <h4 style={{ fontWeight: '800', marginBottom: '2rem', color: 'var(--text)' }}>Support</h4>
                         <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            <li><Link to="/contact" style={{ color: '#666', textDecoration: 'none' }}>Contact Us</Link></li>
-                            <li><Link to="/pages/faq" style={{ color: '#666', textDecoration: 'none' }}>FAQ</Link></li>
+                            <li><Link to="/contact" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>Contact Us</Link></li>
+                            <li><Link to="/pages/faq" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>FAQ</Link></li>
                         </ul>
                     </div>
-                    <div style={{ background: '#f8f9ff', padding: '2rem', borderRadius: '24px' }}>
-                        <h4 style={{ fontWeight: '800', marginBottom: '1rem' }}>Contact Us</h4>
-                        <p style={{ color: '#666', fontSize: '0.875rem', marginBottom: '1.5rem' }}>Have questions? Reach out to our support team.</p>
+                    <div style={{ background: 'var(--bg-alt)', padding: '2rem', borderRadius: '24px', border: '1px solid var(--border)' }}>
+                        <h4 style={{ fontWeight: '800', marginBottom: '1rem', color: 'var(--text)' }}>Contact Us</h4>
+                        <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginBottom: '1.5rem' }}>Have questions? Reach out to our support team.</p>
                         <a href="mailto:support@wallgolinks.com" style={{
                             display: 'flex',
                             alignItems: 'center',
@@ -364,14 +382,13 @@ const LandingPage = () => {
                         </a>
                     </div>
                 </div>
-                <div style={{ borderTop: '1px solid #eee', paddingTop: '30px', textAlign: 'center', color: '#aaa', fontSize: '0.875rem' }}>
+                <div style={{ borderTop: '1px solid var(--border)', paddingTop: '30px', textAlign: 'center', color: 'var(--text-light)', fontSize: '0.875rem' }}>
                     &copy; {new Date().getFullYear()} Wallgo Links. All rights reserved.
                 </div>
             </footer>
 
             <style>{`
-                .hover-lift:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(113, 88, 226, 0.1) !important; }
-                .hover-scale-105:hover { transform: scale(1.05); }
+                .hover-lift:hover { transform: translateY(-10px); box-shadow: var(--shadow) !important; }
                 @media (max-width: 991px) {
                     nav { padding: 0 5%; }
                     h1 { fontSize: 3rem !important; }

@@ -31,28 +31,28 @@ export const QuickLink = () => {
 
   return (
     <DashboardLayout title="Quick Link">
-      <div style={{ maxWidth: '800px', margin: '0 auto', background: 'white', padding: '3rem', borderRadius: '24px', border: '1px solid #eee' }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto', background: 'var(--bg-card)', padding: '3rem', borderRadius: '24px', border: '1px solid var(--border)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginBottom: '3rem' }}>
-           <div style={{ background: '#f0effc', color: 'var(--primary)', padding: '0.75rem', borderRadius: '12px' }}><Zap size={32} /></div>
+           <div style={{ background: 'var(--primary-light)', color: 'var(--primary)', padding: '0.75rem', borderRadius: '12px' }}><Zap size={32} /></div>
            <div>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: '800', margin: 0 }}>Quick Shortener</h3>
-              <p style={{ color: '#666', fontSize: '0.875rem', margin: '0.25rem 0 0' }}>Anonymously shorten your links in one click.</p>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: '800', margin: 0, color: 'var(--text)' }}>Quick Shortener</h3>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', margin: '0.25rem 0 0' }}>Anonymously shorten your links in one click.</p>
            </div>
         </div>
 
         <form onSubmit={handleShorten}>
           <div style={{ marginBottom: '1.5rem' }}>
-            <label style={{ fontWeight: '700', fontSize: '0.875rem', display: 'block', marginBottom: '0.75rem' }}>Long URL</label>
+            <label style={{ fontWeight: '700', fontSize: '0.875rem', display: 'block', marginBottom: '0.75rem', color: 'var(--text-muted)' }}>Long URL</label>
             <input type="url" placeholder="https://example.com/very-long-url-here..."
               value={url} onChange={e => setUrl(e.target.value)} required 
-              style={{ padding: '1rem 1.25rem', borderRadius: '12px', background: '#f9f9f9', border: '1px solid #eee', color: '#1a1a1a', width: '100%', fontSize: '1rem' }} />
+              style={{ padding: '1rem 1.25rem', borderRadius: '12px', background: 'var(--bg-alt)', border: '1px solid var(--border)', color: 'var(--text)', width: '100%', fontSize: '1rem', outline: 'none' }} />
           </div>
           <div style={{ marginBottom: '2.5rem' }}>
-            <label style={{ fontWeight: '700', fontSize: '0.875rem', display: 'block', marginBottom: '0.75rem' }}>Custom Alias (Optional)</label>
-            <div style={{ display: 'flex', alignItems: 'center', background: '#f9f9f9', borderRadius: '12px', border: '1px solid #eee', overflow: 'hidden' }}>
-              <span style={{ padding: '0 1.25rem', fontSize: '0.9375rem', fontWeight: '700', color: '#aaa', background: '#f0f0f0', height: '50px', display: 'flex', alignItems: 'center' }}>{window.location.hostname}/st/</span>
+            <label style={{ fontWeight: '700', fontSize: '0.875rem', display: 'block', marginBottom: '0.75rem', color: 'var(--text-muted)' }}>Custom Alias (Optional)</label>
+            <div style={{ display: 'flex', alignItems: 'center', background: 'var(--bg-alt)', borderRadius: '12px', border: '1px solid var(--border)', overflow: 'hidden' }}>
+              <span style={{ padding: '0 1.25rem', fontSize: '0.9375rem', fontWeight: '700', color: 'var(--text-light)', background: 'var(--bg-alt)', borderRight: '1px solid var(--border)', height: '50px', display: 'flex', alignItems: 'center' }}>{window.location.hostname}/st/</span>
               <input type="text" placeholder="custom-alias" value={alias} onChange={e => setAlias(e.target.value)} 
-                style={{ border: 'none', background: 'transparent', flex: 1, height: '50px', fontWeight: '700', color: '#1a1a1a', padding: '0 1.25rem', fontSize: '1rem' }} />
+                style={{ border: 'none', background: 'transparent', flex: 1, height: '50px', fontWeight: '700', color: 'var(--text)', padding: '0 1.25rem', fontSize: '1rem', outline: 'none' }} />
             </div>
           </div>
           <button type="submit" disabled={loading} style={{ 
@@ -75,7 +75,7 @@ export const QuickLink = () => {
         </form>
 
         {result && (
-          <div style={{ marginTop: '3rem', background: '#f0effc', border: '2px dashed var(--primary)', borderRadius: '16px', padding: '1.5rem', textAlign: 'center' }}>
+          <div style={{ marginTop: '3rem', background: 'var(--primary-light)', border: '2px dashed var(--primary)', borderRadius: '16px', padding: '1.5rem', textAlign: 'center' }}>
             <div style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--primary)', marginBottom: '1.5rem', wordBreak: 'break-all' }}>{result}</div>
             <button onClick={handleCopy} style={{ 
                 background: copied ? '#10b981' : 'var(--primary)', 
@@ -126,12 +126,12 @@ export const BulkShortener = () => {
 
   return (
     <DashboardLayout title="Bulk Shortener">
-      <div style={{ maxWidth: '900px', margin: '0 auto', background: 'white', padding: '3rem', borderRadius: '24px', border: '1px solid #eee' }}>
+      <div style={{ maxWidth: '900px', margin: '0 auto', background: 'var(--bg-card)', padding: '3rem', borderRadius: '24px', border: '1px solid var(--border)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginBottom: '3rem' }}>
-           <div style={{ background: '#ecfdf5', color: '#10b981', padding: '0.75rem', borderRadius: '12px' }}><Layers size={32} /></div>
+           <div style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', padding: '0.75rem', borderRadius: '12px' }}><Layers size={32} /></div>
            <div>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: '800', margin: 0 }}>Bulk Tool</h3>
-              <p style={{ color: '#666', fontSize: '0.875rem', margin: '0.25rem 0 0' }}>Shorten up to 20 links at once. One URL per line.</p>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: '800', margin: 0, color: 'var(--text)' }}>Bulk Tool</h3>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', margin: '0.25rem 0 0' }}>Shorten up to 20 links at once. One URL per line.</p>
            </div>
         </div>
 
@@ -140,9 +140,9 @@ export const BulkShortener = () => {
             <div key={i} style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
               <input type="url" placeholder="https://example.com/link..."
                 value={u} onChange={e => updateRow(i, e.target.value)}
-                style={{ flex: 1, padding: '0.75rem 1.25rem', borderRadius: '10px', background: '#f9f9f9', border: '1px solid #eee', fontSize: '0.9375rem' }} />
+                style={{ flex: 1, padding: '0.75rem 1.25rem', borderRadius: '10px', background: 'var(--bg-alt)', border: '1px solid var(--border)', color: 'var(--text)', fontSize: '0.9375rem', outline: 'none' }} />
               {urls.length > 1 && (
-                <button type="button" onClick={() => removeRow(i)} style={{ background: '#fff5f5', color: '#ef4444', border: '1px solid #fee2e2', borderRadius: '10px', padding: '0 1rem', cursor: 'pointer' }}>
+                <button type="button" onClick={() => removeRow(i)} style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '10px', padding: '0 1rem', cursor: 'pointer' }}>
                   <Minus size={20} />
                 </button>
               )}
@@ -150,7 +150,7 @@ export const BulkShortener = () => {
           ))}
           
           <div style={{ display: 'flex', gap: '1rem', marginTop: '2.5rem' }}>
-            <button type="button" onClick={addRow} style={{ padding: '0.875rem 1.75rem', borderRadius: '10px', border: '1px solid #eee', background: 'white', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <button type="button" onClick={addRow} style={{ padding: '0.875rem 1.75rem', borderRadius: '10px', border: '1px solid var(--border)', background: 'var(--bg-alt)', color: 'var(--text)', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Plus size={18} /> Add Row
             </button>
             <button type="submit" disabled={loading} style={{ flex: 1, padding: '0.875rem', borderRadius: '10px', background: 'var(--primary)', color: 'white', border: 'none', fontWeight: '800', fontSize: '1rem', cursor: 'pointer' }}>
@@ -162,21 +162,21 @@ export const BulkShortener = () => {
         {results.length > 0 && (
           <div style={{ marginTop: '3rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-                <h4 style={{ fontSize: '1.125rem', fontWeight: '800' }}>Results</h4>
-                <button onClick={copyAll} style={{ background: 'white', border: '1px solid #eee', padding: '0.5rem 1rem', borderRadius: '8px', fontWeight: '700', fontSize: '0.8125rem', cursor: 'pointer' }}>Copy All</button>
+                <h4 style={{ fontSize: '1.125rem', fontWeight: '800', color: 'var(--text)' }}>Results</h4>
+                <button onClick={copyAll} style={{ background: 'var(--bg-alt)', border: '1px solid var(--border)', color: 'var(--text)', padding: '0.5rem 1rem', borderRadius: '8px', fontWeight: '700', fontSize: '0.8125rem', cursor: 'pointer' }}>Copy All</button>
             </div>
-            <div style={{ borderRadius: '12px', border: '1px solid #eee', overflow: 'hidden' }}>
+            <div style={{ borderRadius: '12px', border: '1px solid var(--border)', overflow: 'hidden' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead style={{ background: '#f9f9f9' }}>
-                  <tr style={{ borderBottom: '1px solid #eee' }}>
-                    <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '800', color: '#aaa' }}>Source</th>
-                    <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '800', color: '#aaa' }}>Short URL</th>
+                <thead style={{ background: 'var(--bg-alt)' }}>
+                  <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                    <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-light)' }}>Source</th>
+                    <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-light)' }}>Short URL</th>
                   </tr>
                 </thead>
                 <tbody>
                   {results.map((r, i) => (
-                    <tr key={i} style={{ borderBottom: '1px solid #f9f9f9' }}>
-                      <td style={{ padding: '1rem', fontSize: '0.875rem', color: '#666', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.url}</td>
+                    <tr key={i} style={{ borderBottom: '1px solid var(--border)' }}>
+                      <td style={{ padding: '1rem', fontSize: '0.875rem', color: 'var(--text-muted)', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.url}</td>
                       <td style={{ padding: '1rem' }}>
                         {r.error ? <span style={{ color: '#ef4444', fontSize: '0.875rem' }}>Error</span> : 
                           <a href={`${window.location.origin}/st/${r.alias || r.shortUrl.split('/').pop()}`} target="_blank" rel="noreferrer" style={{ color: 'var(--primary)', fontWeight: '700', textDecoration: 'none' }}>
@@ -218,18 +218,18 @@ export const FullPageScript = () => {
 
   return (
     <DashboardLayout title="Full Page Script">
-      <div style={{ maxWidth: '900px', margin: '0 auto', background: 'white', padding: '3rem', borderRadius: '24px', border: '1px solid #eee' }}>
+      <div style={{ maxWidth: '900px', margin: '0 auto', background: 'var(--bg-card)', padding: '3rem', borderRadius: '24px', border: '1px solid var(--border)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginBottom: '3rem' }}>
            <div style={{ background: '#fffbeb', color: '#f59e0b', padding: '0.75rem', borderRadius: '12px' }}><Code size={32} /></div>
            <div>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: '800', margin: 0 }}>Full Page Script</h3>
-              <p style={{ color: '#666', fontSize: '0.875rem', margin: '0.25rem 0 0' }}>Monetize every link on your website automatically.</p>
+              <h3 style={{ fontSize: '1.5rem', fontWeight: '800', margin: 0, color: 'var(--text)' }}>Full Page Script</h3>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', margin: '0.25rem 0 0' }}>Monetize every link on your website automatically.</p>
            </div>
         </div>
 
-        <div style={{ background: '#f8f9ff', padding: '2rem', borderRadius: '20px', marginBottom: '2.5rem', border: '1px solid #eef2ff' }}>
-            <h5 style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '1rem' }}>How to use:</h5>
-            <ol style={{ paddingLeft: '1.25rem', color: '#666', fontSize: '0.9375rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        <div style={{ background: 'var(--primary-light)', padding: '2rem', borderRadius: '20px', marginBottom: '2.5rem', border: '1px solid var(--border)' }}>
+            <h5 style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '1rem', color: 'var(--text)' }}>How to use:</h5>
+            <ol style={{ paddingLeft: '1.25rem', color: 'var(--text-muted)', fontSize: '0.9375rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 <li>Copy the script code below.</li>
                 <li>Paste it into the header (<code>&lt;head&gt;</code>) of your website.</li>
                 <li>All outgoing links on your site will now be automatically shortened and monetized!</li>
@@ -238,14 +238,15 @@ export const FullPageScript = () => {
 
         <div style={{ position: 'relative' }}>
           <pre style={{ 
-            background: '#1a1a1a', 
+            background: 'var(--bg-black)', 
             color: '#10b981', 
             borderRadius: '16px', 
             padding: '2.5rem 1.5rem', 
             fontSize: '0.875rem', 
             overflow: 'auto', 
             lineHeight: '1.6', 
-            fontFamily: "monospace"
+            fontFamily: "monospace",
+            border: '1px solid var(--border)'
           }}>
             {scriptContent}
           </pre>
@@ -294,56 +295,56 @@ export const ApiDocumentation = () => {
 
   return (
     <DashboardLayout title="Developer API">
-      <div style={{ maxWidth: '1000px', margin: '0 auto', background: 'white', padding: '3rem', borderRadius: '24px', border: '1px solid #eee' }}>
+      <div style={{ maxWidth: '1000px', margin: '0 auto', background: 'var(--bg-card)', padding: '3rem', borderRadius: '24px', border: '1px solid var(--border)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-                <div style={{ background: '#fef2f2', color: '#ef4444', padding: '0.75rem', borderRadius: '12px' }}><Terminal size={32} /></div>
+                <div style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', padding: '0.75rem', borderRadius: '12px' }}><Terminal size={32} /></div>
                 <div>
-                   <h3 style={{ fontSize: '1.5rem', fontWeight: '800', margin: 0 }}>API Integration</h3>
-                   <p style={{ color: '#666', fontSize: '0.875rem' }}>Build your own tools using our REST API.</p>
+                   <h3 style={{ fontSize: '1.5rem', fontWeight: '800', margin: 0, color: 'var(--text)' }}>API Integration</h3>
+                   <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>Build your own tools using our REST API.</p>
                 </div>
             </div>
-            <div style={{ background: '#f9f9f9', padding: '0.75rem 1.5rem', borderRadius: '12px', border: '1px solid #eee', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <span style={{ fontSize: '0.875rem', fontWeight: '700', color: '#666' }}>API Key:</span>
+            <div style={{ background: 'var(--bg-alt)', padding: '0.75rem 1.5rem', borderRadius: '12px', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <span style={{ fontSize: '0.875rem', fontWeight: '700', color: 'var(--text-light)' }}>API Key:</span>
                 <code style={{ fontWeight: '800', color: 'var(--primary)', letterSpacing: '2px' }}>{token}</code>
-                <button onClick={() => copy('token', token)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#aaa' }}><Copy size={16} /></button>
+                <button onClick={() => copy('token', token)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-light)' }}><Copy size={16} /></button>
             </div>
         </div>
 
-        <div style={{ background: '#f8f9ff', padding: '2rem', borderRadius: '20px', border: '1px solid #eef2ff' }}>
+        <div style={{ background: 'var(--bg-alt)', padding: '2rem', borderRadius: '20px', border: '1px solid var(--border)' }}>
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1.5rem' }}>
-               <span style={{ background: '#10b981', color: 'white', padding: '0.375rem 0.75rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '800' }}>GET</span>
-               <code style={{ fontSize: '1.125rem', fontWeight: '800' }}>/api/v1/shorten</code>
+                <span style={{ background: '#10b981', color: 'white', padding: '0.375rem 0.75rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '800' }}>GET</span>
+                <code style={{ fontSize: '1.125rem', fontWeight: '800', color: 'var(--text)' }}>/api/v1/shorten</code>
             </div>
-            <p style={{ color: '#666', marginBottom: '2rem' }}>Returns a shortened URL for any long URL provided. Requires an API key.</p>
+            <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>Returns a shortened URL for any long URL provided. Requires an API key.</p>
 
-            <h5 style={{ fontSize: '0.875rem', fontWeight: '800', marginBottom: '1rem' }}>Parameters:</h5>
-            <div style={{ background: 'white', borderRadius: '12px', border: '1px solid #eee', overflow: 'hidden', marginBottom: '2rem' }}>
+            <h5 style={{ fontSize: '0.875rem', fontWeight: '800', marginBottom: '1rem', color: 'var(--text)' }}>Parameters:</h5>
+            <div style={{ background: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border)', overflow: 'hidden', marginBottom: '2rem' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                    <thead style={{ background: '#f9f9f9' }}>
-                        <tr style={{ borderBottom: '1px solid #eee' }}>
-                            <th style={{ padding: '0.75rem 1.25rem', textAlign: 'left', fontSize: '0.75rem', color: '#aaa' }}>Name</th>
-                            <th style={{ padding: '0.75rem 1.25rem', textAlign: 'left', fontSize: '0.75rem', color: '#aaa' }}>Type</th>
-                            <th style={{ padding: '0.75rem 1.25rem', textAlign: 'left', fontSize: '0.75rem', color: '#aaa' }}>Description</th>
+                    <thead style={{ background: 'var(--bg-alt)' }}>
+                        <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                            <th style={{ padding: '0.75rem 1.25rem', textAlign: 'left', fontSize: '0.75rem', color: 'var(--text-light)' }}>Name</th>
+                            <th style={{ padding: '0.75rem 1.25rem', textAlign: 'left', fontSize: '0.75rem', color: 'var(--text-light)' }}>Type</th>
+                            <th style={{ padding: '0.75rem 1.25rem', textAlign: 'left', fontSize: '0.75rem', color: 'var(--text-light)' }}>Description</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr style={{ borderBottom: '1px solid #f9f9f9' }}>
-                            <td style={{ padding: '0.75rem 1.25rem' }}><code>api</code></td>
-                            <td style={{ padding: '0.75rem 1.25rem' }}>String</td>
-                            <td style={{ padding: '0.75rem 1.25rem' }}>Your private API key</td>
+                        <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                            <td style={{ padding: '0.75rem 1.25rem', color: 'var(--text)' }}><code>api</code></td>
+                            <td style={{ padding: '0.75rem 1.25rem', color: 'var(--text)' }}>String</td>
+                            <td style={{ padding: '0.75rem 1.25rem', color: 'var(--text-muted)' }}>Your private API key</td>
                         </tr>
                         <tr>
-                            <td style={{ padding: '0.75rem 1.25rem' }}><code>url</code></td>
-                            <td style={{ padding: '0.75rem 1.25rem' }}>String</td>
-                            <td style={{ padding: '0.75rem 1.25rem' }}>The long URL to shorten</td>
+                            <td style={{ padding: '0.75rem 1.25rem', color: 'var(--text)' }}><code>url</code></td>
+                            <td style={{ padding: '0.75rem 1.25rem', color: 'var(--text)' }}>String</td>
+                            <td style={{ padding: '0.75rem 1.25rem', color: 'var(--text-muted)' }}>The long URL to shorten</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
 
-            <h5 style={{ fontSize: '0.875rem', fontWeight: '800', marginBottom: '1rem' }}>Exapmle URL:</h5>
-            <pre style={{ background: '#1a1a1a', color: 'white', padding: '1.5rem', borderRadius: '12px', fontSize: '0.875rem', overflow: 'auto' }}>
+            <h5 style={{ fontSize: '0.875rem', fontWeight: '800', marginBottom: '1rem', color: 'var(--text)' }}>Example URL:</h5>
+            <pre style={{ background: 'var(--bg-black)', color: 'white', padding: '1.5rem', borderRadius: '12px', fontSize: '0.875rem', overflow: 'auto', border: '1px solid var(--border)' }}>
                 {window.location.origin}/api/v1/shorten?api={token}&url=https://google.com
             </pre>
         </div>

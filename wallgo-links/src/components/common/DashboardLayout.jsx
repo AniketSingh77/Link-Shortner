@@ -53,18 +53,19 @@ const CreateLinkModal = ({ isOpen, onClose, onSuccess }) => {
 
   return (
     <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()} 
-         style={{ zIndex: 2000, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
+         style={{ zIndex: 2000, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', position: 'fixed', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div className="modal" style={{ 
         borderRadius: '24px', 
         padding: '2.5rem', 
-        background: '#ffffff', 
-        border: '1px solid #eee',
-        boxShadow: '0 20px 60px rgba(0,0,0,0.15)',
+        background: 'var(--bg-card)', 
+        border: '1px solid var(--border)',
+        boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
         maxWidth: '550px',
-        width: '95%'
+        width: '95%',
+        position: 'relative'
       }}>
-        <button className="modal-close" onClick={onClose} style={{ color: '#aaa', top: '1.5rem', right: '1.5rem' }}><X size={24} /></button>
-        <div style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <button onClick={onClose} style={{ position: 'absolute', color: 'var(--text-light)', top: '1.5rem', right: '1.5rem', background: 'none', border: 'none', cursor: 'pointer' }}><X size={24} /></button>
+        <div style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '1rem', color: 'var(--text)' }}>
           <div style={{ background: 'var(--primary)', color: 'white', padding: '0.625rem', borderRadius: '12px' }}>
             <Zap size={24} fill="white" />
           </div>
@@ -74,44 +75,47 @@ const CreateLinkModal = ({ isOpen, onClose, onSuccess }) => {
         {!result ? (
           <form onSubmit={handleShorten}>
             <div style={{ marginBottom: '1.25rem' }}>
-              <label style={{ display: 'block', fontWeight: '700', marginBottom: '0.5rem', fontSize: '0.875rem' }}>Destination URL</label>
+              <label style={{ display: 'block', fontWeight: '700', marginBottom: '0.5rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>Destination URL</label>
               <input type="url" placeholder="https://example.com/long-url"
                 value={url} onChange={e => setUrl(e.target.value)} required autoFocus 
                 style={{ 
                   width: '100%',
                   padding: '1rem 1.25rem', 
                   borderRadius: '12px', 
-                  background: '#f9f9f9', 
-                  border: '1px solid #eee', 
-                  color: '#1a1a1a',
-                  fontSize: '1rem'
+                  background: 'var(--bg-alt)', 
+                  border: '1px solid var(--border)', 
+                  color: 'var(--text)',
+                  fontSize: '1rem',
+                  outline: 'none'
                 }} />
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
                 <div>
-                    <label style={{ display: 'block', fontWeight: '700', marginBottom: '0.5rem', fontSize: '0.875rem' }}>Alias (Optional)</label>
+                    <label style={{ display: 'block', fontWeight: '700', marginBottom: '0.5rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>Alias (Optional)</label>
                     <input type="text" placeholder="custom-alias"
                         value={alias} onChange={e => setAlias(e.target.value)} 
                         style={{ 
                             width: '100%',
                             padding: '1rem 1.25rem', 
-                            background: '#f9f9f9', 
-                            border: '1px solid #eee', 
+                            background: 'var(--bg-alt)', 
+                            border: '1px solid var(--border)', 
                             borderRadius: '12px',
-                            color: '#1a1a1a'
+                            color: 'var(--text)',
+                            outline: 'none'
                         }} />
                 </div>
                 <div>
-                    <label style={{ display: 'block', fontWeight: '700', marginBottom: '0.5rem', fontSize: '0.875rem' }}>Title (Optional)</label>
+                    <label style={{ display: 'block', fontWeight: '700', marginBottom: '0.5rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>Title (Optional)</label>
                     <input type="text" placeholder="My Link Label"
                         value={title} onChange={e => setTitle(e.target.value)} 
                         style={{ 
                             width: '100%',
                             padding: '1rem 1.25rem', 
                             borderRadius: '12px', 
-                            background: '#f9f9f9', 
-                            border: '1px solid #eee', 
-                            color: '#1a1a1a'
+                            background: 'var(--bg-alt)', 
+                            border: '1px solid var(--border)', 
+                            color: 'var(--text)',
+                            outline: 'none'
                         }} />
                 </div>
             </div>
@@ -136,7 +140,7 @@ const CreateLinkModal = ({ isOpen, onClose, onSuccess }) => {
         ) : (
           <div>
             <div style={{ 
-                background: '#f0effc', 
+                background: 'var(--primary-light)', 
                 border: '2px dashed var(--primary)', 
                 borderRadius: '16px', 
                 padding: '1.5rem', 
@@ -163,10 +167,10 @@ const CreateLinkModal = ({ isOpen, onClose, onSuccess }) => {
               {copied ? 'Copied to clipboard!' : 'Copy Link'}
             </button>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
-              <button onClick={handleReset} style={{ padding: '0.875rem', borderRadius: '12px', border: '1px solid #eee', background: 'white', fontWeight: '700', cursor: 'pointer' }}>
+              <button onClick={handleReset} style={{ padding: '0.875rem', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--bg-alt)', color: 'var(--text)', fontWeight: '700', cursor: 'pointer' }}>
                  Shorten Another
               </button>
-              <button onClick={onClose} style={{ padding: '0.875rem', borderRadius: '12px', border: 'none', background: '#f9f9f9', fontWeight: '700', cursor: 'pointer' }}>
+              <button onClick={onClose} style={{ padding: '0.875rem', borderRadius: '12px', border: 'none', background: 'var(--bg)', color: 'var(--text)', fontWeight: '700', cursor: 'pointer' }}>
                  Close Modal
               </button>
             </div>
@@ -189,8 +193,8 @@ const NavItem = ({ icon: Icon, label, path, active, isSub, hasChildren, isOpen, 
       borderRadius: '12px',
       margin: '0.25rem 1rem',
       padding: '0.75rem 1rem',
-      background: active ? '#F0EFFC' : 'transparent',
-      color: active ? 'var(--primary)' : '#666',
+      background: active ? 'var(--primary-light)' : 'transparent',
+      color: active ? 'var(--primary)' : 'var(--text-muted)',
       fontWeight: active ? '800' : '600',
       textDecoration: 'none',
       display: 'flex',
@@ -259,8 +263,8 @@ const DashboardLayout = ({ children, title, isAdmin = false }) => {
         flexDirection: 'column',
         zIndex: 1000,
         transition: '0.3s',
-        left: 0
-      }} className="sidebar-container">
+        left: mobileOpen ? '0' : '0'
+      }} className={`sidebar-container ${mobileOpen ? 'open' : ''}`}>
         {/* Logo */}
         <div style={{ padding: '1.5rem 1.5rem 2.5rem' }}>
             <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
@@ -303,7 +307,7 @@ const DashboardLayout = ({ children, title, isAdmin = false }) => {
             <NavItem icon={CreditCard} label="Withdraw" path="/dashboard/withdraw" active={isAt('/dashboard/withdraw')} />
             
             <div style={{ padding: '1.5rem 1.5rem 0.5rem', fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-light)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Analytics</div>
-            <NavItem icon={BarChart2} label="Traffic Stats" path="/dashboard/traffic" active={isAt('/dashboard/traffic')} />
+            <NavItem icon={BarChart2} label="Traffic Stats" path="#" active={isAt('/dashboard/traffic')} />
             <NavItem icon={Users} label="Referrals" path="/dashboard/refer" active={isAt('/dashboard/refer')} />
 
             <div style={{ padding: '1.5rem 1.5rem 0.5rem', fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-light)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Tools</div>
@@ -351,7 +355,7 @@ const DashboardLayout = ({ children, title, isAdmin = false }) => {
       </aside>
 
       {/* ===== HEADER & MAIN CONTENT ===== */}
-      <div style={{ marginLeft: '260px', flex: 1, minHeight: '100vh', display: 'flex', flexDirection: 'column' }} className="main-content-layout">
+      <div style={{ marginLeft: mobileOpen ? '0' : '260px', flex: 1, minHeight: '100vh', display: 'flex', flexDirection: 'column', transition: '0.3s' }} className="main-content-layout">
         
         <header style={{ 
           height: '70px', 
@@ -372,10 +376,10 @@ const DashboardLayout = ({ children, title, isAdmin = false }) => {
             <h2 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--text)' }}>{title}</h2>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', color: 'var(--text)' }}>
             {/* Theme Toggle */}
             <button onClick={toggleTheme} style={{ 
-                background: 'var(--bg)', 
+                background: 'var(--bg-alt)', 
                 border: '1px solid var(--border)', 
                 color: 'var(--text)', 
                 width: '40px', 
@@ -428,11 +432,12 @@ const DashboardLayout = ({ children, title, isAdmin = false }) => {
       <style>{`
         @media (max-width: 991px) {
             .sidebar-container { left: ${mobileOpen ? '0' : '-260px'} !important; }
+            .sidebar-container.open { left: 0 !important; }
             .main-content-layout { margin-left: 0 !important; }
             .mobile-toggle { display: block !important; margin-right: 1rem; }
             .user-info-text { display: none; }
         }
-        .nav-item:hover { background: var(--bg) !important; color: var(--primary) !important; }
+        .nav-item:hover { background: var(--bg-alt) !important; color: var(--primary) !important; }
         .nav-item.active:hover { background: var(--primary-light) !important; }
         .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 2000; }
         .modal { animation: slideUp 0.3s ease; }

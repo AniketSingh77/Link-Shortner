@@ -8,13 +8,13 @@ import api from '../utils/api';
 const StatCard = ({ icon: Icon, label, value, color, trend }) => (
   <div style={{ 
     padding: '1.5rem', 
-    background: '#ffffff',
-    border: '1px solid #eee', 
+    background: 'var(--bg-card)',
+    border: '1px solid var(--border)', 
     borderRadius: '16px',
     display: 'flex',
     alignItems: 'center',
     gap: '1.25rem'
-  }}>
+  }} className="stat-card">
     <div style={{ 
         background: color + '15', 
         color: color, 
@@ -24,9 +24,9 @@ const StatCard = ({ icon: Icon, label, value, color, trend }) => (
       <Icon size={24} />
     </div>
     <div>
-        <div style={{ fontSize: '0.875rem', fontWeight: '700', color: '#666', marginBottom: '0.25rem' }}>{label}</div>
+        <div style={{ fontSize: '0.875rem', fontWeight: '700', color: 'var(--text-muted)', marginBottom: '0.25rem' }}>{label}</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <span style={{ fontSize: '1.5rem', fontWeight: '800', color: '#1a1a1a' }}>{value}</span>
+            <span style={{ fontSize: '1.5rem', fontWeight: '800', color: 'var(--text)' }}>{value}</span>
             {trend && (
                 <span style={{ fontSize: '0.75rem', fontWeight: '700', color: '#10b981', display: 'flex', alignItems: 'center', gap: '0.125rem' }}>
                     <ArrowUpRight size={14} /> {trend}%
@@ -93,20 +93,20 @@ const Dashboard = () => {
     <DashboardLayout title="Overview">
       {/* Quick Shortener Box */}
       <div style={{ 
-        background: 'white', 
+        background: 'var(--bg-card)', 
         padding: '2.5rem', 
         borderRadius: '24px', 
-        border: '1px solid #eee', 
+        border: '1px solid var(--border)', 
         marginBottom: '2.5rem',
-        boxShadow: '0 10px 40px rgba(0,0,0,0.02)'
+        boxShadow: 'var(--shadow-sm)'
       }}>
-        <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '1.5rem' }}>Create New Link</h3>
+        <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '1.5rem', color: 'var(--text)' }}>Create New Link</h3>
         <form onSubmit={handleShorten} style={{ display: 'flex', gap: '1rem' }}>
           <div style={{ flex: 1, position: 'relative' }}>
-            <LinkIcon size={20} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
+            <LinkIcon size={20} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-light)' }} />
             <input 
               style={{ 
-                width: '100%', padding: '1.125rem 1rem 1.125rem 3rem', borderRadius: '14px', border: '1px solid #eee', background: '#f9f9f9', fontSize: '1rem', outline: 'none'
+                width: '100%', padding: '1.125rem 1rem 1.125rem 3rem', borderRadius: '14px', border: '1px solid var(--border)', background: 'var(--bg-alt)', color: 'var(--text)', fontSize: '1rem', outline: 'none'
               }}
               placeholder="Paste your long URL here..."
               value={url}
@@ -122,9 +122,9 @@ const Dashboard = () => {
         </form>
 
         {shortened && (
-          <div style={{ marginTop: '1.5rem', padding: '1rem 1.5rem', background: '#F0EFFC', borderRadius: '12px', border: '1px solid #7158E230', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ marginTop: '1.5rem', padding: '1rem 1.5rem', background: 'var(--primary-light)', borderRadius: '12px', border: '1px solid var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <code style={{ fontSize: '1rem', color: 'var(--primary)', fontWeight: '800' }}>{shortened}</code>
-            <button onClick={copyToClipboard} style={{ background: 'white', border: '1px solid #eee', padding: '0.5rem 1rem', borderRadius: '8px', cursor: 'pointer', fontWeight: '800', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <button onClick={copyToClipboard} style={{ background: 'var(--bg-white)', border: '1px solid var(--border)', color: 'var(--text)', padding: '0.5rem 1rem', borderRadius: '8px', cursor: 'pointer', fontWeight: '800', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Copy size={16} /> COPY
             </button>
           </div>
@@ -132,7 +132,7 @@ const Dashboard = () => {
       </div>
 
       {/* Stats Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', marginBottom: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
         <StatCard icon={Eye} label="Total Views" value={loading ? '...' : stats.totalViews.toLocaleString()} color="#7158E2" trend="12" />
         <StatCard icon={DollarSign} label="Total Earnings" value={loading ? '...' : `$${stats.totalEarnings}`} color="#10b981" trend="8" />
         <StatCard icon={TrendingUp} label="Average CPM" value={loading ? '...' : `$${stats.averageCPM}`} color="#3b82f6" />
@@ -142,21 +142,21 @@ const Dashboard = () => {
       <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem' }}>
         {/* Main Chart */}
         <div style={{ 
-            background: 'white', 
+            background: 'var(--bg-card)', 
             padding: '2rem', 
             borderRadius: '20px', 
-            border: '1px solid #eee' 
+            border: '1px solid var(--border)' 
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem' }}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: '800' }}>Traffic Statistics</h3>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--text)' }}>Traffic Statistics</h3>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
                 {['Daily', 'Weekly', 'Monthly'].map(t => (
                     <button key={t} style={{ 
                         padding: '0.5rem 1rem', 
                         borderRadius: '8px', 
-                        border: '1px solid #eee', 
-                        background: t === 'Daily' ? '#F0EFFC' : 'white',
-                        color: t === 'Daily' ? 'var(--primary)' : '#666',
+                        border: '1px solid var(--border)', 
+                        background: t === 'Daily' ? 'var(--primary-light)' : 'var(--bg-white)',
+                        color: t === 'Daily' ? 'var(--primary)' : 'var(--text-muted)',
                         fontSize: '0.75rem',
                         fontWeight: '700',
                         cursor: 'pointer'
@@ -173,11 +173,12 @@ const Dashboard = () => {
                     <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: '700', fill: '#aaa' }} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: '700', fill: '#aaa' }} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: '700', fill: 'var(--text-light)' }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fontWeight: '700', fill: 'var(--text-light)' }} />
                 <Tooltip 
-                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 20px rgba(0,0,0,0.05)' }}
+                    contentStyle={{ borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--bg-white)', boxShadow: 'var(--shadow-sm)' }}
+                    labelStyle={{ color: 'var(--text-muted)', fontWeight: '800' }}
                     itemStyle={{ fontWeight: '800', color: 'var(--primary)' }}
                 />
                 <Area type="monotone" dataKey="views" stroke="var(--primary)" strokeWidth={3} fillOpacity={1} fill="url(#colorViews)" />
@@ -212,12 +213,12 @@ const Dashboard = () => {
             </div>
 
             <div style={{ 
-                background: 'white', 
+                background: 'var(--bg-card)', 
                 padding: '2rem', 
                 borderRadius: '20px', 
-                border: '1px solid #eee' 
+                border: '1px solid var(--border)' 
             }}>
-                <h3 style={{ fontSize: '1.125rem', fontWeight: '800', marginBottom: '1.5rem' }}>Account Health</h3>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: '800', marginBottom: '1.5rem', color: 'var(--text)' }}>Account Health</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                     {[
                         { label: 'Network Status', val: 'Online', color: '#10b981' },
@@ -225,7 +226,7 @@ const Dashboard = () => {
                         { label: 'Identity Verified', val: 'Yes', color: '#10b981' }
                     ].map((item, i) => (
                         <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span style={{ color: '#666', fontWeight: '600', fontSize: '0.875rem' }}>{item.label}</span>
+                            <span style={{ color: 'var(--text-muted)', fontWeight: '600', fontSize: '0.875rem' }}>{item.label}</span>
                             <span style={{ color: item.color, fontWeight: '800', fontSize: '0.875rem' }}>{item.val}</span>
                         </div>
                     ))}
@@ -237,33 +238,33 @@ const Dashboard = () => {
       {/* Recent Links */}
       <div style={{ 
           marginTop: '1.5rem',
-          background: 'white', 
+          background: 'var(--bg-card)', 
           padding: '2rem', 
           borderRadius: '20px', 
-          border: '1px solid #eee' 
+          border: '1px solid var(--border)' 
       }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: '800' }}>Recently Created Links</h3>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--text)' }}>Recently Created Links</h3>
               <Link to="/dashboard/links" style={{ color: 'var(--primary)', fontWeight: '800', fontSize: '0.875rem', textDecoration: 'none' }}>View All Links</Link>
           </div>
           <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
-                      <tr style={{ borderBottom: '1px solid #f0f0f0' }}>
-                          <th style={{ textAlign: 'left', padding: '1rem 0', color: '#aaa', fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase' }}>Alias</th>
-                          <th style={{ textAlign: 'left', padding: '1rem 0', color: '#aaa', fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase' }}>Original URL</th>
-                          <th style={{ textAlign: 'center', padding: '1rem 0', color: '#aaa', fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase' }}>Views</th>
-                          <th style={{ textAlign: 'right', padding: '1rem 0', color: '#aaa', fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase' }}>Earning</th>
+                      <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                          <th style={{ textAlign: 'left', padding: '1rem 0', color: 'var(--text-light)', fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase' }}>Alias</th>
+                          <th style={{ textAlign: 'left', padding: '1rem 0', color: 'var(--text-light)', fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase' }}>Original URL</th>
+                          <th style={{ textAlign: 'center', padding: '1rem 0', color: 'var(--text-light)', fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase' }}>Views</th>
+                          <th style={{ textAlign: 'right', padding: '1rem 0', color: 'var(--text-light)', fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase' }}>Earning</th>
                       </tr>
                   </thead>
                   <tbody>
                       {(recentLinks || []).length === 0 ? (
-                          <tr><td colSpan="4" style={{ textAlign: 'center', padding: '3rem', color: '#aaa' }}>No links found. Create your first link now!</td></tr>
+                          <tr><td colSpan="4" style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>No links found. Create your first link now!</td></tr>
                       ) : (recentLinks || []).map(link => (
-                          <tr key={link._id} style={{ borderBottom: '1px solid #f9f9f9' }}>
-                              <td style={{ padding: '1.25rem 0', fontWeight: '700' }}>{link.alias}</td>
-                              <td style={{ padding: '1.25rem 0', color: '#666', fontSize: '0.875rem' }}>{link.originalUrl.substring(0, 50)}...</td>
-                              <td style={{ padding: '1.25rem 0', textAlign: 'center', fontWeight: '700' }}>{link.views}</td>
+                          <tr key={link._id} style={{ borderBottom: '1px solid var(--bg-alt)' }}>
+                              <td style={{ padding: '1.25rem 0', fontWeight: '700', color: 'var(--text)' }}>{link.alias}</td>
+                              <td style={{ padding: '1.25rem 0', color: 'var(--text-muted)', fontSize: '0.875rem' }}>{link.originalUrl.substring(0, 50)}...</td>
+                              <td style={{ padding: '1.25rem 0', textAlign: 'center', fontWeight: '700', color: 'var(--text)' }}>{link.views}</td>
                               <td style={{ padding: '1.25rem 0', textAlign: 'right', fontWeight: '800', color: '#10b981' }}>${(link.views * 0.005).toFixed(4)}</td>
                           </tr>
                       ))}

@@ -94,7 +94,7 @@ app.get('/st/:alias', async (req, res) => {
 
     // --- Redirect to Ad Gateway ---
     const frontendUrl = process.env.FRONTEND_URL || 'https://shortner.wallgo.in';
-    res.redirect(`${frontendUrl}/v?target=${encodeURIComponent(link.originalUrl)}&alias=${link.alias}`);
+    res.redirect(`${frontendUrl}/v/${link.alias}`);
   } catch (err) {
     console.error('Redirect Gateway Error:', err);
     res.status(500).send('Server Error');

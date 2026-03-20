@@ -212,4 +212,32 @@ router.get('/:id/stats', auth, async (req, res) => {
   }
 });
 
+// @route   GET api/links/resolve/:alias
+// @desc    Get the original URL for a given alias (Public)
+router.get('/resolve/:alias', async (req, res) => {
+  try {
+    const link = await Link.findOne({ alias: req.params.alias, status: 'Active' });
+    if (!link) return res.status(404).json({ msg: 'Link not found' });
+    res.json({ originalUrl: link.originalUrl });
+  } catch (err) {
+    res.status(500).send('Server Error');
+  }
+});
+
+// @route   GET api/links/details/:alias
+// @desc    Get link details (title, etc.) for bridge page
+router.get('/details/:alias', async (req, res) => {
+  try {
+    const link = await Link.findOne({ alias: req.params.alias, status: 'Active' });
+    if (!link) return res.status(404).json({ msg: 'Link not found' });
+    res.json({ 
+        title: link.title, 
+        alias: link.alias,
+        createdAt: link.createdAt
+    });
+  } catch (err) {
+    res.status(500).send('Server Error');
+  }
+});
+
 module.exports = router;

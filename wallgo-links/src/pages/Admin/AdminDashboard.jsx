@@ -1,51 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import DashboardLayout from '../../components/common/DashboardLayout';
-import { Users, Settings, CreditCard, Globe, FileText, BarChart2, CheckCircle, XCircle, Clock, Shield, Search, Edit2, Trash2, X, Plus, RefreshCw, Activity, DollarSign } from 'lucide-react';
+import AdminLayout from '../../components/common/AdminLayout';
+import { 
+  Users, Settings, CreditCard, Globe, FileText, BarChart2, 
+  CheckCircle, XCircle, Clock, Shield, Search, Edit2, 
+  Trash2, X, Plus, RefreshCw, Activity, DollarSign, 
+  ArrowRight, Download, MousePointer2, ChevronRight, Save, Trash
+} from 'lucide-react';
 import api from '../../utils/api';
+import AdBanner from '../../components/AdBanner';
 
 // ===================================================
-// REUSABLE COMPONENTS
+// STATUS BADGE
 // ===================================================
 const StatusBadge = ({ status }) => {
   const map = { 
-    Active: { bg: '#ecfdf5', text: '#10b981' }, 
-    Blocked: { bg: '#fef2f2', text: '#ef4444' }, 
-    Pending: { bg: '#fffbeb', text: '#f59e0b' }, 
-    Complete: { bg: '#ecfdf5', text: '#10b981' }, 
-    Cancelled: { bg: '#fef2f2', text: '#ef4444' } 
+    Active: { bg: 'rgba(16, 185, 129, 0.15)', text: '#10b981' }, 
+    Blocked: { bg: 'rgba(239, 68, 68, 0.15)', text: '#ef4444' }, 
+    Pending: { bg: 'rgba(245, 158, 11, 0.15)', text: '#f59e0b' }, 
+    Complete: { bg: 'rgba(16, 185, 129, 0.15)', text: '#10b981' }, 
+    Cancelled: { bg: 'rgba(239, 68, 68, 0.15)', text: '#ef4444' } 
   };
-  const style = map[status] || { bg: '#f9f9f9', text: '#aaa' };
+  const style = map[status] || { bg: 'var(--border)', text: 'var(--text-light)' };
   return (
     <span style={{ 
-        padding: '0.25rem 0.5rem', 
-        borderRadius: '6px', 
-        fontSize: '0.75rem', 
-        fontWeight: '800', 
-        background: style.bg, 
-        color: style.text 
+        padding: '0.25rem 0.625rem', borderRadius: '8px', fontSize: '0.75rem', fontWeight: '800', background: style.bg, color: style.text 
     }}>{status}</span>
   );
 };
 
-const TabBtn = ({ label, icon: Icon, active, onClick }) => (
-  <button onClick={onClick}
-    style={{
-      display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '1rem 1.5rem',
-      border: 'none', cursor: 'pointer', background: 'transparent',
-      borderBottom: `2px solid ${active ? 'var(--primary)' : 'transparent'}`,
-      color: active ? 'var(--primary)' : '#666', 
-      fontWeight: active ? '800' : '600',
-      fontSize: '0.875rem', 
-      transition: '0.3s'
-    }}>
-    <Icon size={18} /> {label}
-  </button>
-);
-
 // ===================================================
-// OVERVIEW TAB
+// OVERVIEW SECTION
 // ===================================================
-const OverviewTab = () => {
+const OverviewSection = () => {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -53,354 +39,270 @@ const OverviewTab = () => {
     api.get('/admin/stats').then(r => setStats(r.data)).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
-  const cards = stats ? [
-    { label: 'Total Users', value: stats.totalUsers, color: '#7158E2', icon: Users },
-    { label: 'Total Links', value: stats.totalLinks, color: '#3b82f6', icon: Globe },
-    { label: 'Total Clicks', value: stats.totalClicks?.toLocaleString(), color: '#10b981', icon: BarChart2 },
-    { label: 'Platform Profit', value: `$${stats.totalEarnings}`, color: '#f59e0b', icon: DollarSign },
-    { label: 'Total Paid Out', value: `$${stats.totalPayouts}`, color: '#10b981', icon: CheckCircle },
-    { label: 'Pending Requests', value: stats.pendingPayouts, color: '#ef4444', icon: Clock },
-  ] : [];
-
-  return (
-    <div style={{ marginTop: '2rem' }}>
-      {loading ? <div style={{ textAlign: 'center', padding: '5rem' }}><Activity size={40} className="spin" /></div> : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem' }}>
-          {cards.map((c, i) => (
-            <div key={i} style={{ background: 'white', padding: '1.5rem', borderRadius: '16px', border: '1px solid #eee', display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-              <div style={{ background: c.color + '15', width: '50px', height: '50px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <c.icon size={24} color={c.color} />
-              </div>
-              <div>
-                <div style={{ fontSize: '1.5rem', fontWeight: '800', color: '#1a1a1a' }}>{c.value}</div>
-                <div style={{ fontSize: '0.75rem', color: '#aaa', fontWeight: '700', textTransform: 'uppercase' }}>{c.label}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
-
-// ===================================================
-// USERS TAB
-// ===================================================
-const UsersTab = () => {
-  const [users, setUsers] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [page, setPage] = useState(1);
-  const [pages, setPages] = useState(1);
-
-  const fetchUsers = async (pg = 1, q = search) => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({ page: pg, limit: 15 });
-      if (q) params.append('search', q);
-      const res = await api.get(`/admin/users?${params}`);
-      setUsers(res.data.users || res.data);
-      setTotal(res.data.total || (res.data.users || res.data).length);
-      setPages(res.data.pages || 1);
-    } finally { setLoading(false); }
-  };
-
-  useEffect(() => { fetchUsers(); }, []);
-
-  const handleBlock = async (id) => {
-    if (!window.confirm('Block this user?')) return;
-    await api.post(`/admin/users/${id}/block`);
-    fetchUsers(page, search);
-  };
-
-  const handleUnblock = async (id) => {
-    await api.post(`/admin/users/${id}/unblock`);
-    fetchUsers(page, search);
-  };
-
-  const handleRoleToggle = async (id, currentRole) => {
-    const newRole = currentRole === 'Admin' ? 'User' : 'Admin';
-    if (!window.confirm(`Change role to ${newRole}?`)) return;
-    await api.put(`/admin/users/${id}/role`, { role: newRole });
-    fetchUsers(page, search);
-  };
-
-  return (
-    <div style={{ marginTop: '2rem' }}>
-      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem' }}>
-        <div style={{ flex: 1, position: 'relative' }}>
-          <Search size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: '#aaa' }} />
-          <input 
-            style={{ padding: '0.75rem 1rem 0.75rem 2.5rem', borderRadius: '10px', border: '1px solid #eee', width: '100%', outline: 'none', background: '#f9f9f9' }}
-            placeholder="Search users..." 
-            value={search} 
-            onChange={e => setSearch(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') { setPage(1); fetchUsers(1, search); } }} 
-          />
-        </div>
-        <button onClick={() => { setPage(1); fetchUsers(1, search); }} style={{ background: 'var(--primary)', color: 'white', border: 'none', padding: '0 1.5rem', borderRadius: '10px', fontWeight: '700', cursor: 'pointer' }}>Search</button>
-      </div>
-
-      <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #eee', overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ background: '#f9f9f9', borderBottom: '1px solid #eee' }}>
-              <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '800', color: '#aaa' }}>User</th>
-              <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '800', color: '#aaa' }}>Role</th>
-              <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '800', color: '#aaa' }}>Status</th>
-              <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '800', color: '#aaa' }}>Balance</th>
-              <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '800', color: '#aaa' }}>Links</th>
-              <th style={{ padding: '1rem', textAlign: 'right', fontSize: '0.75rem', fontWeight: '800', color: '#aaa' }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr><td colSpan="6" style={{ textAlign: 'center', padding: '3rem' }}><Activity size={30} className="spin" /></td></tr>
-            ) : users.map(u => (
-              <tr key={u._id} style={{ borderBottom: '1px solid #f9f9f9' }}>
-                <td style={{ padding: '1rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <img src={`https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&background=7158E2&color=fff&size=32`} style={{ borderRadius: '50%' }} />
-                    <div>
-                        <div style={{ fontWeight: '700' }}>{u.name}</div>
-                        <div style={{ fontSize: '0.75rem', color: '#aaa' }}>{u.email}</div>
-                    </div>
-                  </div>
-                </td>
-                <td style={{ padding: '1rem' }}>
-                    <button onClick={() => handleRoleToggle(u._id, u.role)} style={{ 
-                        background: u.role === 'Admin' ? '#f0effc' : '#f9f9f9',
-                        color: u.role === 'Admin' ? 'var(--primary)' : '#666',
-                        border: 'none', padding: '0.25rem 0.5rem', borderRadius: '6px', fontSize: '0.7rem', fontWeight: '800', cursor: 'pointer'
-                    }}>{u.role}</button>
-                </td>
-                <td style={{ padding: '1rem' }}><StatusBadge status={u.status} /></td>
-                <td style={{ padding: '1rem', fontWeight: '800', color: '#10b981' }}>${(u.balance || 0).toFixed(4)}</td>
-                <td style={{ padding: '1rem', fontWeight: '700' }}>{u.linkCount || 0}</td>
-                <td style={{ padding: '1rem', textAlign: 'right' }}>
-                    {u.status === 'Active'
-                      ? <button onClick={() => handleBlock(u._id)} style={{ background: '#fef2f2', color: '#ef4444', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '700', cursor: 'pointer' }}>Block</button>
-                      : <button onClick={() => handleUnblock(u._id)} style={{ background: '#ecfdf5', color: '#10b981', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '700', cursor: 'pointer' }}>Unblock</button>
-                    }
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-};
-
-// ===================================================
-// PAYOUTS TAB
-// ===================================================
-const PayoutsTab = () => {
-  const [payouts, setPayouts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('Pending');
-
-  const fetchPayouts = async (status = filter) => {
-    setLoading(true);
-    try {
-      const res = await api.get(`/admin/payouts?status=${status}`);
-      setPayouts(res.data.payouts || res.data);
-    } finally { setLoading(false); }
-  };
-
-  useEffect(() => { fetchPayouts(); }, []);
-
-  const handleApprove = async (id) => {
-    if (!window.confirm('Approve this payout request?')) return;
-    await api.post(`/admin/payouts/approve/${id}`);
-    fetchPayouts();
-  };
-
-  const handleReject = async (id) => {
-    const remarks = window.prompt('Rejection reason (optional):') || 'Rejected by admin';
-    await api.post(`/admin/payouts/reject/${id}`, { remarks });
-    fetchPayouts();
-  };
-
-  return (
-    <div style={{ marginTop: '2rem' }}>
-      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
-        {['All', 'Pending', 'Complete', 'Cancelled'].map(s => (
-          <button key={s} onClick={() => { setFilter(s === 'All' ? '' : s); fetchPayouts(s === 'All' ? '' : s); }} style={{ 
-            background: filter === s || (s === 'All' && !filter) ? 'var(--primary)' : 'white',
-            color: filter === s || (s === 'All' && !filter) ? 'white' : '#666',
-            border: '1px solid #eee', padding: '0.5rem 1rem', borderRadius: '8px', fontWeight: '700', cursor: 'pointer'
-          }}>{s}</button>
-        ))}
-      </div>
-
-      <div style={{ background: 'white', borderRadius: '16px', border: '1px solid #eee', overflow: 'hidden' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ background: '#f9f9f9', borderBottom: '1px solid #eee' }}>
-              <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '800', color: '#aaa' }}>User</th>
-              <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '800', color: '#aaa' }}>Amount</th>
-              <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '800', color: '#aaa' }}>Method</th>
-              <th style={{ padding: '1rem', textAlign: 'left', fontSize: '0.75rem', fontWeight: '800', color: '#aaa' }}>Status</th>
-              <th style={{ padding: '1rem', textAlign: 'right', fontSize: '0.75rem', fontWeight: '800', color: '#aaa' }}>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr><td colSpan="5" style={{ textAlign: 'center', padding: '3rem' }}><Activity size={30} className="spin" /></td></tr>
-            ) : payouts.map(p => (
-              <tr key={p._id} style={{ borderBottom: '1px solid #f9f9f9' }}>
-                <td style={{ padding: '1rem' }}>
-                    <div style={{ fontWeight: '700' }}>{p.userId?.name || 'Unknown'}</div>
-                    <div style={{ fontSize: '0.75rem', color: '#aaa' }}>{p.userId?.email}</div>
-                </td>
-                <td style={{ padding: '1rem', fontWeight: '800', color: '#10b981' }}>${p.amount.toFixed(4)}</td>
-                <td style={{ padding: '1rem' }}>
-                    <div style={{ fontSize: '0.875rem', fontWeight: '600' }}>{p.method}</div>
-                    <div style={{ fontSize: '0.7rem', color: '#aaa' }}>{p.account}</div>
-                </td>
-                <td style={{ padding: '1rem' }}><StatusBadge status={p.status} /></td>
-                <td style={{ padding: '1rem', textAlign: 'right' }}>
-                    {p.status === 'Pending' && (
-                        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                            <button onClick={() => handleApprove(p._id)} style={{ background: '#ecfdf5', color: '#10b981', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '700', cursor: 'pointer' }}>Approve</button>
-                            <button onClick={() => handleReject(p._id)} style={{ background: '#fef2f2', color: '#ef4444', border: 'none', padding: '0.4rem 0.8rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: '700', cursor: 'pointer' }}>Reject</button>
-                        </div>
-                    )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-};
-
-// ===================================================
-// SETTINGS TAB
-// ===================================================
-const SettingsTab = () => {
-  const [config, setConfig] = useState({
-    steps: 2,
-    timer: 15,
-    backgroundSites: ['https://www.pastex.online/'],
-    adBannerIds: {
-      top: 'fc4c80a53247a4cd577428a7e29741d0',
-      sidebar: '3334f040539d82d83a45dcee7b1e54f2',
-      content: '3334f040539d82d83a45dcee7b1e54f2'
-    }
-  });
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    api.get('/admin/settings').then(r => {
-      const adConf = r.data.find(s => s.key === 'ad_config');
-      if (adConf) setConfig(adConf.value);
-    }).finally(() => setLoading(false));
-  }, []);
-
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      await api.post('/admin/settings', { key: 'ad_config', value: config });
-      alert('Settings saved successfully!');
-    } catch (err) { alert('Failed to save settings'); }
-    finally { setSaving(false); }
-  };
-
   if (loading) return <div style={{ textAlign: 'center', padding: '5rem' }}><Activity size={40} className="spin" /></div>;
 
+  const cards = [
+    { label: 'Total Users', value: stats.totalUsers, color: '#7158E2', icon: Users, desc: 'Registered Publishers' },
+    { label: 'Total Links', value: stats.totalLinks, color: '#3b82f6', icon: Globe, desc: 'Active Aliases' },
+    { label: 'Global Traffic', value: stats.totalClicks?.toLocaleString(), color: '#10b981', icon: BarChart2, desc: 'Verified Impressions' },
+    { label: 'Platform Revenue', value: `$${stats.totalEarnings}`, color: '#f59e0b', icon: DollarSign, desc: 'Gross Monetization' },
+    { label: 'Total Payouts', value: `$${stats.totalPayouts}`, color: '#10b981', icon: CheckCircle, desc: 'Settled Requests' },
+    { label: 'Pending Audit', value: stats.pendingPayouts, color: '#ef4444', icon: Clock, desc: 'Action Required' },
+  ];
+
   return (
-    <div style={{ marginTop: '2rem', maxWidth: '800px' }}>
-      <div style={{ background: 'white', padding: '2.5rem', borderRadius: '24px', border: '1px solid #eee' }}>
-        <h3 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '2rem' }}>Redirect & Ad Setup</h3>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2.5rem' }}>
-          <div>
-            <label style={{ display: 'block', fontWeight: '800', fontSize: '0.875rem', marginBottom: '0.75rem' }}>Number of Ads Pages</label>
-            <input type="number" value={config.steps} onChange={e => setConfig({...config, steps: parseInt(e.target.value)})}
-              style={{ width: '100%', padding: '0.875rem', borderRadius: '12px', border: '1px solid #eee', background: '#f9f9f9', fontWeight: '700' }} />
-          </div>
-          <div>
-            <label style={{ display: 'block', fontWeight: '800', fontSize: '0.875rem', marginBottom: '0.75rem' }}>Timer (Seconds)</label>
-            <input type="number" value={config.timer} onChange={e => setConfig({...config, timer: parseInt(e.target.value)})}
-              style={{ width: '100%', padding: '0.875rem', borderRadius: '12px', border: '1px solid #eee', background: '#f9f9f9', fontWeight: '700' }} />
-          </div>
-        </div>
-
-        <div style={{ marginBottom: '2.5rem' }}>
-          <label style={{ display: 'block', fontWeight: '800', fontSize: '0.875rem', marginBottom: '0.75rem' }}>Background Websites (comma separated)</label>
-          <input type="text" value={config.backgroundSites.join(', ')} onChange={e => setConfig({...config, backgroundSites: e.target.value.split(',').map(s => s.trim())})}
-            placeholder="https://pastex.online, https://example.com"
-            style={{ width: '100%', padding: '0.875rem', borderRadius: '12px', border: '1px solid #eee', background: '#f9f9f9', fontWeight: '700' }} />
-        </div>
-
-        <div style={{ borderTop: '1px solid #eee', paddingTop: '2rem', marginBottom: '2.5rem' }}>
-            <h4 style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '1.5rem', color: 'var(--primary)' }}>Ad Tag Configuration</h4>
-            <div style={{ display: 'grid', gap: '1.5rem' }}>
-                <div>
-                   <label style={{ display: 'block', fontWeight: '700', fontSize: '0.8125rem', marginBottom: '0.5rem', color: '#666' }}>Top Banner ID (728x90)</label>
-                   <input type="text" value={config.adBannerIds.top} onChange={e => setConfig({...config, adBannerIds: {...config.adBannerIds, top: e.target.value}})}
-                     style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', border: '1px solid #eee', background: '#f9f9f9' }} />
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-                   <div>
-                      <label style={{ display: 'block', fontWeight: '700', fontSize: '0.8125rem', marginBottom: '0.5rem', color: '#666' }}>Sidebar ID (160x600)</label>
-                      <input type="text" value={config.adBannerIds.sidebar} onChange={e => setConfig({...config, adBannerIds: {...config.adBannerIds, sidebar: e.target.value}})}
-                        style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', border: '1px solid #eee', background: '#f9f9f9' }} />
-                   </div>
-                   <div>
-                      <label style={{ display: 'block', fontWeight: '700', fontSize: '0.8125rem', marginBottom: '0.5rem', color: '#666' }}>Content ID (300x250)</label>
-                      <input type="text" value={config.adBannerIds.content} onChange={e => setConfig({...config, adBannerIds: {...config.adBannerIds, content: e.target.value}})}
-                        style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', border: '1px solid #eee', background: '#f9f9f9' }} />
-                   </div>
-                </div>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }}>
+      {cards.map((c, i) => (
+        <div key={i} style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: '24px', border: '1px solid var(--border)', transition: '0.3s' }} className="admin-card">
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+            <div style={{ background: c.color + '15', width: '50px', height: '50px', borderRadius: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <c.icon size={24} color={c.color} />
             </div>
+            <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: '1.75rem', fontWeight: '950', color: 'var(--text)' }}>{c.value}</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-light)', fontWeight: '800', textTransform: 'uppercase' }}>{c.label}</div>
+            </div>
+          </div>
+          <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1rem', fontSize: '0.8125rem', color: 'var(--text-muted)', fontWeight: '600' }}>{c.desc}</div>
         </div>
-
-        <button onClick={handleSave} disabled={saving} style={{ 
-          width: '100%', padding: '1.25rem', borderRadius: '16px', border: 'none', background: 'var(--primary)', color: 'white', fontWeight: '800', fontSize: '1.125rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', transition: '0.3s'
-        }}>
-          {saving ? 'Updating System...' : <><Settings size={22} /> Update Ad Protocol</>}
-        </button>
-      </div>
+      ))}
     </div>
   );
 };
 
 // ===================================================
-// MAIN ADMIN DASHBOARD
+// ADS PROTOCOL SECTION (Advanced)
 // ===================================================
-const AdminDashboard = () => {
-  const tabs = [
-    { id: 'overview', label: 'Overview', icon: BarChart2 },
-    { id: 'users', label: 'Users', icon: Users },
-    { id: 'payouts', label: 'Payouts', icon: CreditCard },
-    { id: 'settings', label: 'Ads Setup', icon: Settings },
-  ];
+const SettingsSection = () => {
+    const [config, setConfig] = useState({
+      steps: 2,
+      timer: 15,
+      stepConfigs: [
+        { step: 1, website: 'https://www.pastex.online/' },
+        { step: 2, website: 'https://www.google.com' }
+      ],
+      adBannerIds: {
+        top: 'fc4c80a53247a4cd577428a7e29741d0',
+        sidebar: '3334f040539d82d83a45dcee7b1e54f2',
+        content: '3334f040539d82d83a45dcee7b1e54f2'
+      }
+    });
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+  
+    useEffect(() => {
+      api.get('/admin/settings').then(r => {
+        const adConf = r.data.find(s => s.key === 'ad_config');
+        if (adConf) setConfig(adConf.value);
+      }).finally(() => setLoading(false));
+    }, []);
+  
+    const handleSave = async () => {
+      setSaving(true);
+      try {
+        await api.post('/admin/settings', { key: 'ad_config', value: config });
+        alert('Ads Protocol Updated!');
+      } catch (err) { alert('Update Failed'); }
+      finally { setSaving(false); }
+    };
 
-  const [activeTab, setActiveTab] = useState('overview');
+    const addStep = () => {
+        const nextStep = config.steps + 1;
+        setConfig({
+            ...config,
+            steps: nextStep,
+            stepConfigs: [...config.stepConfigs, { step: nextStep, website: 'https://' }]
+        });
+    };
 
-  return (
-    <DashboardLayout title="Admin Panel">
-      <div style={{ background: 'white', borderBottom: '1px solid #eee', margin: '-2rem -2rem 2rem -2rem', padding: '0 2rem' }}>
-        <div style={{ display: 'flex' }}>
-            {tabs.map(t => (
-            <TabBtn key={t.id} label={t.label} icon={t.icon} active={activeTab === t.id} onClick={() => setActiveTab(t.id)} />
-            ))}
+    const removeStep = () => {
+        if (config.steps <= 1) return;
+        const newSteps = config.steps - 1;
+        setConfig({
+            ...config,
+            steps: newSteps,
+            stepConfigs: config.stepConfigs.slice(0, newSteps)
+        });
+    };
+  
+    if (loading) return <div style={{ textAlign: 'center', padding: '5rem' }}><Activity size={40} className="spin" /></div>;
+  
+    return (
+      <div style={{ maxWidth: '900px' }}>
+        <div style={{ background: 'var(--bg-card)', padding: '2.5rem', borderRadius: '32px', border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
+             <div>
+                <h3 style={{ fontSize: '1.5rem', fontWeight: '950', marginBottom: '0.25rem' }}>Monetization Protocol</h3>
+                <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>Configure multi-step redirection and ad behavioral patterns.</p>
+             </div>
+             <button onClick={handleSave} disabled={saving} style={{ background: 'var(--primary)', color: 'white', border: 'none', padding: '0.75rem 1.5rem', borderRadius: '12px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', transition: '0.2s' }}>
+                {saving ? <Activity className="spin" size={18} /> : <Save size={18} />} Save Protocol
+             </button>
+          </div>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '3rem' }}>
+            <div>
+              <label style={{ display: 'block', fontWeight: '900', fontSize: '0.8125rem', color: 'var(--text)', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Verification Steps</label>
+              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                  <button onClick={removeStep} style={{ background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text)', padding: '0.5rem 1rem', borderRadius: '8px', cursor: 'pointer' }}>-</button>
+                  <span style={{ fontSize: '1.25rem', fontWeight: '950' }}>{config.steps} Pages</span>
+                  <button onClick={addStep} style={{ background: 'var(--bg)', border: '1px solid var(--border)', color: 'var(--text)', padding: '0.5rem 1rem', borderRadius: '8px', cursor: 'pointer' }}>+</button>
+              </div>
+            </div>
+            <div>
+              <label style={{ display: 'block', fontWeight: '900', fontSize: '0.8125rem', color: 'var(--text)', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Final Verification Timer</label>
+              <input type="number" value={config.timer} onChange={e => setConfig({...config, timer: parseInt(e.target.value)})}
+                style={{ width: '100%', padding: '0.875rem', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontWeight: '800' }} />
+            </div>
+          </div>
+
+          <div style={{ background: 'var(--bg-alt)', padding: '2rem', borderRadius: '24px', marginBottom: '3rem' }}>
+            <h4 style={{ fontSize: '1rem', fontWeight: '900', marginBottom: '1.5rem', color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Globe size={18} /> Per-Page Website Targeting</h4>
+            <div style={{ display: 'grid', gap: '1.25rem' }}>
+                {config.stepConfigs.map((s, idx) => (
+                    <div key={idx} style={{ display: 'flex', gap: '1rem', alignItems: 'center', background: 'var(--bg-card)', padding: '1rem', borderRadius: '16px', border: '1px solid var(--border)' }}>
+                        <div style={{ width: '80px', fontWeight: '900', color: 'var(--text-light)', fontSize: '0.75rem' }}>PAGE {s.step}</div>
+                        <input type="text" value={s.website} placeholder="Targeting Link (e.g. pastex.online)"
+                           onChange={e => {
+                               const newConfigs = [...config.stepConfigs];
+                               newConfigs[idx].website = e.target.value;
+                               setConfig({...config, stepConfigs: newConfigs});
+                           }}
+                           style={{ flex: 1, border: 'none', outline: 'none', background: 'transparent', fontWeight: '700', color: 'var(--text)' }} />
+                    </div>
+                ))}
+            </div>
+          </div>
+
+          <div>
+              <h4 style={{ fontSize: '1rem', fontWeight: '900', marginBottom: '1.5rem', color: 'var(--text)' }}>Global Ad Units (Vigilant Ads)</h4>
+              <div style={{ display: 'grid', gap: '1.5rem' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                    <div>
+                        <label style={{ display: 'block', fontWeight: '700', fontSize: '0.75rem', color: 'var(--text-light)', marginBottom: '0.5rem' }}>Top Leaderboard (728x90)</label>
+                        <input type="text" value={config.adBannerIds.top} onChange={e => setConfig({...config, adBannerIds: {...config.adBannerIds, top: e.target.value}})}
+                            style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontWeight: '600' }} />
+                    </div>
+                    <div>
+                        <label style={{ display: 'block', fontWeight: '700', fontSize: '0.75rem', color: 'var(--text-light)', marginBottom: '0.5rem' }}>Skyscraper (160x600)</label>
+                        <input type="text" value={config.adBannerIds.sidebar} onChange={e => setConfig({...config, adBannerIds: {...config.adBannerIds, sidebar: e.target.value}})}
+                            style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontWeight: '600' }} />
+                    </div>
+                  </div>
+                  <div>
+                      <label style={{ display: 'block', fontWeight: '700', fontSize: '0.75rem', color: 'var(--text-light)', marginBottom: '0.5rem' }}>In-Content Box (300x250)</label>
+                      <input type="text" value={config.adBannerIds.content} onChange={e => setConfig({...config, adBannerIds: {...config.adBannerIds, content: e.target.value}})}
+                          style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontWeight: '600' }} />
+                  </div>
+              </div>
+          </div>
         </div>
       </div>
+    );
+};
 
-      {activeTab === 'overview' && <OverviewTab />}
-      {activeTab === 'users' && <UsersTab />}
-      {activeTab === 'payouts' && <PayoutsTab />}
-      {activeTab === 'settings' && <SettingsTab />}
-      <style>{`.spin { animation: spin 1s linear infinite; } @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
-    </DashboardLayout>
-  );
+// ===================================================
+// STATIC PAGES SECTION
+// ===================================================
+const PagesSection = () => {
+    const [pages, setPages] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [editing, setEditing] = useState(null);
+    const [saving, setSaving] = useState(false);
+
+    const slugs = ['faq', 'privacy', 'terms', 'dmca', 'payment-policy'];
+
+    const fetchPages = async () => {
+        setLoading(true);
+        try {
+            const res = await Promise.all(slugs.map(s => api.get(`/pages/${s}`).catch(() => ({ data: { slug: s, title: s.charAt(0).toUpperCase() + s.slice(1), content: '' } }))));
+            setPages(res.map(r => r.data));
+        } finally { setLoading(false); }
+    };
+
+    useEffect(() => { fetchPages(); }, []);
+
+    const handleSave = async () => {
+        setSaving(true);
+        try {
+            await api.put(`/pages/${editing.slug}`, editing);
+            alert('Page updated successfully!');
+            fetchPages();
+            setEditing(null);
+        } catch (err) { alert('Save failed'); }
+        finally { setSaving(false); }
+    };
+
+    if (loading) return <div style={{ textAlign: 'center', padding: '5rem' }}><Activity size={40} className="spin" /></div>;
+
+    if (editing) return (
+        <div style={{ background: 'var(--bg-card)', padding: '2.5rem', borderRadius: '24px', border: '1px solid var(--border)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: '900' }}>Editing: {editing.title}</h3>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                    <button onClick={() => setEditing(null)} style={{ padding: '0.6rem 1.25rem', borderRadius: '10px', border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', cursor: 'pointer' }}>Cancel</button>
+                    <button onClick={handleSave} disabled={saving} style={{ background: 'var(--primary)', color: 'white', border: 'none', padding: '0.6rem 1.25rem', borderRadius: '10px', fontWeight: '800', cursor: 'pointer' }}>{saving ? 'Saving...' : 'Save Changes'}</button>
+                </div>
+            </div>
+            <input 
+                style={{ width: '100%', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', marginBottom: '1.5rem', fontSize: '1rem', fontWeight: '800' }}
+                value={editing.title}
+                onChange={e => setEditing({...editing, title: e.target.value})}
+                placeholder="Page Title"
+            />
+            <textarea 
+                style={{ width: '100%', minHeight: '400px', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: '0.9375rem', fontFamily: 'monospace', outline: 'none' }}
+                value={editing.content}
+                onChange={e => setEditing({...editing, content: e.target.value})}
+                placeholder="Page Content (HTML supported)"
+            />
+        </div>
+    );
+
+    return (
+        <div style={{ display: 'grid', gap: '1rem' }}>
+            {pages.map(p => (
+                <div key={p.slug} style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: '20px', border: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                        <div style={{ fontWeight: '900', fontSize: '1.125rem' }}>{p.title}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-light)', fontWeight: '700' }}>SLUG: /{p.slug}</div>
+                    </div>
+                    <button onClick={() => setEditing(p)} style={{ background: 'var(--primary-light)', border: 'none', padding: '0.75rem 1.5rem', borderRadius: '12px', fontWeight: '800', color: 'var(--primary)', cursor: 'pointer' }}>Edit Content</button>
+                </div>
+            ))}
+        </div>
+    );
+};
+
+// ===================================================
+// ADMIN DASHBOARD MAIN
+// ===================================================
+const AdminDashboard = () => {
+    const [tab, setTab] = useState('overview');
+    const path = window.location.pathname;
+
+    useEffect(() => {
+        if (path.includes('/users')) setTab('users');
+        else if (path.includes('/links')) setTab('links');
+        else if (path.includes('/payouts')) setTab('payouts');
+        else if (path.includes('/cpm')) setTab('cpm');
+        else if (path.includes('/pages')) setTab('pages');
+        else if (path.includes('/settings')) setTab('settings');
+        else setTab('overview');
+    }, [path]);
+
+    return (
+        <AdminLayout title={tab === 'overview' ? 'Administration Hub' : tab.charAt(0).toUpperCase() + tab.slice(1)}>
+            {tab === 'overview' && <OverviewSection />}
+            {tab === 'settings' && <SettingsSection />}
+            {tab === 'pages' && <PagesSection />}
+            {/* These would be implementation logic for other sections */}
+            {tab === 'users' && <div style={{ background: 'var(--bg-card)', padding: '2rem', borderRadius: '24px', border: '1px solid var(--border)' }}>User Management UI Placeholder</div>}
+            {tab === 'links' && <div style={{ background: 'var(--bg-card)', padding: '2rem', borderRadius: '24px', border: '1px solid var(--border)' }}>Global Link Audit UI Placeholder</div>}
+            {tab === 'payouts' && <div style={{ background: 'var(--bg-card)', padding: '2rem', borderRadius: '24px', border: '1px solid var(--border)' }}>Payout Processing UI Placeholder</div>}
+            {tab === 'cpm' && <div style={{ background: 'var(--bg-card)', padding: '2rem', borderRadius: '24px', border: '1px solid var(--border)' }}>CPM Rate Precision UI Placeholder</div>}
+        </AdminLayout>
+    );
 };
 
 export default AdminDashboard;

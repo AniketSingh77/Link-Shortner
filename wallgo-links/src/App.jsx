@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
+import { ThemeProvider } from './context/ThemeContext';
 import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
 import ManageLinks from './pages/ManageLinks';
@@ -40,44 +41,46 @@ const AdminRoute = ({ children }) => {
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Public */}
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/v" element={<RedirectPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/payout-rates" element={<PayoutRates />} />
-        <Route path="/pages/:slug" element={<StaticPage />} />
-        <Route path="/contact" element={<ContactUs />} />
-
-        {/* User Dashboard */}
-        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/dashboard/links" element={<ProtectedRoute><ManageLinks /></ProtectedRoute>} />
-        <Route path="/dashboard/links/hidden" element={<ProtectedRoute><ManageLinks hideOnly={true} /></ProtectedRoute>} />
-        <Route path="/dashboard/withdraw" element={<ProtectedRoute><Withdraw /></ProtectedRoute>} />
-        <Route path="/dashboard/billing" element={<ProtectedRoute><Withdraw /></ProtectedRoute>} />
-        <Route path="/dashboard/traffic" element={<ProtectedRoute><TrafficSource /></ProtectedRoute>} />
-        <Route path="/dashboard/refer" element={<ProtectedRoute><Refer /></ProtectedRoute>} />
-
-        {/* Settings */}
-        <Route path="/dashboard/settings" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-        <Route path="/dashboard/settings/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-
-        {/* Developer Tools */}
-        <Route path="/dashboard/tools/quick" element={<ProtectedRoute><QuickLink /></ProtectedRoute>} />
-        <Route path="/dashboard/tools/bulk" element={<ProtectedRoute><BulkShortener /></ProtectedRoute>} />
-        <Route path="/dashboard/tools/script" element={<ProtectedRoute><FullPageScript /></ProtectedRoute>} />
-        <Route path="/dashboard/tools/api" element={<ProtectedRoute><ApiDocumentation /></ProtectedRoute>} />
-
-        {/* Admin */}
-        <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
-        <Route path="/admin/*" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
-
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
-      </Routes>
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Public */}
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/v" element={<RedirectPage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/payout-rates" element={<PayoutRates />} />
+          <Route path="/pages/:slug" element={<StaticPage />} />
+          <Route path="/contact" element={<ContactUs />} />
+  
+          {/* User Dashboard */}
+          <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/dashboard/links" element={<ProtectedRoute><ManageLinks /></ProtectedRoute>} />
+          <Route path="/dashboard/links/hidden" element={<ProtectedRoute><ManageLinks hideOnly={true} /></ProtectedRoute>} />
+          <Route path="/dashboard/withdraw" element={<ProtectedRoute><Withdraw /></ProtectedRoute>} />
+          <Route path="/dashboard/billing" element={<ProtectedRoute><Withdraw /></ProtectedRoute>} />
+          <Route path="/dashboard/traffic" element={<ProtectedRoute><TrafficSource /></ProtectedRoute>} />
+          <Route path="/dashboard/refer" element={<ProtectedRoute><Refer /></ProtectedRoute>} />
+  
+          {/* Settings */}
+          <Route path="/dashboard/settings" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+          <Route path="/dashboard/settings/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+  
+          {/* Developer Tools */}
+          <Route path="/dashboard/tools/quick" element={<ProtectedRoute><QuickLink /></ProtectedRoute>} />
+          <Route path="/dashboard/tools/bulk" element={<ProtectedRoute><BulkShortener /></ProtectedRoute>} />
+          <Route path="/dashboard/tools/script" element={<ProtectedRoute><FullPageScript /></ProtectedRoute>} />
+          <Route path="/dashboard/tools/api" element={<ProtectedRoute><ApiDocumentation /></ProtectedRoute>} />
+  
+          {/* Admin */}
+          <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+          <Route path="/admin/*" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+  
+          {/* Fallback */}
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 

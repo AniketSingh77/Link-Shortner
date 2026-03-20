@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
-  LayoutDashboard, Globe, Users, Link as LinkIcon, ChevronDown,
-  Settings, HelpCircle, Bell, Moon, Maximize, Minimize,
-  Send, Plus, Home, CreditCard, Code, Menu, X, Copy,
-  LogOut, BookOpen, Zap, FileCode, Eye, EyeOff, BarChart2,
-  Sun, ExternalLink, Shield, User, DollarSign, Wallet, Check, Sparkles, Activity, Search
+  Menu, X, Home, Link as LinkIcon, Download,
+  BarChart2, Users, Settings, LogOut, Zap,
+  ChevronDown, ExternalLink, Globe, Layout,
+  Moon, Sun, Shield, CreditCard, HelpCircle, User, Plus,
+  DollarSign, Activity, Bell, Search, LayoutDashboard, FileCode
 } from 'lucide-react';
+import { useTheme } from '../../context/ThemeContext';
 import api from '../../utils/api';
 
 // ===================================================
@@ -210,6 +211,7 @@ const NavItem = ({ icon: Icon, label, path, active, isSub, hasChildren, isOpen, 
 // MAIN DASHBOARD LAYOUT
 // ===================================================
 const DashboardLayout = ({ children, title, isAdmin = false }) => {
+  const { isDarkMode, toggleTheme } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
   const [openMenus, setOpenMenus] = useState({ links: true, tools: true });
@@ -242,14 +244,14 @@ const DashboardLayout = ({ children, title, isAdmin = false }) => {
   const startsWith = (path) => location.pathname.startsWith(path);
 
   return (
-    <div style={{ background: '#F8F9FF', minHeight: '100vh', display: 'flex', fontFamily: "'Inter', sans-serif" }}>
+    <div style={{ background: 'var(--bg-alt)', minHeight: '100vh', display: 'flex', fontFamily: "'Inter', sans-serif", color: 'var(--text)' }}>
       <CreateLinkModal isOpen={showModal} onClose={() => setShowModal(false)} onSuccess={() => {}} />
 
       {/* ===== SIDEBAR ===== */}
       <aside style={{ 
         width: '260px', 
-        background: '#ffffff', 
-        borderRight: '1px solid #eee',
+        background: 'var(--bg-sidebar)', 
+        borderRight: '1px solid var(--border)',
         position: 'fixed',
         top: 0,
         bottom: 0,
@@ -257,7 +259,7 @@ const DashboardLayout = ({ children, title, isAdmin = false }) => {
         flexDirection: 'column',
         zIndex: 1000,
         transition: '0.3s',
-        left: 0
+        left: mobileOpen ? '0' : '-260px'
       }} className="sidebar-container">
         {/* Logo */}
         <div style={{ padding: '1.5rem 1.5rem 2.5rem' }}>
@@ -265,7 +267,7 @@ const DashboardLayout = ({ children, title, isAdmin = false }) => {
                 <div style={{ background: 'var(--primary)', padding: '0.4rem', borderRadius: '8px' }}>
                     <Zap size={20} color="white" fill="white" />
                 </div>
-                <span style={{ fontSize: '1.25rem', fontWeight: '800', color: '#1a1a1a', letterSpacing: '-0.02em' }}>Wallgo<span style={{ color: 'var(--primary)' }}>Links</span></span>
+                <span style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--text)', letterSpacing: '-0.02em' }}>Wallgo<span style={{ color: 'var(--primary)' }}>Links</span></span>
             </Link>
         </div>
 
@@ -296,38 +298,33 @@ const DashboardLayout = ({ children, title, isAdmin = false }) => {
 
         {/* Navigation */}
         <nav style={{ flex: 1, overflowY: 'auto' }}>
-            {!isAdmin ? (
-                <>
-                    <NavItem icon={LayoutDashboard} label="Dashboard" path="/dashboard" active={isAt('/dashboard')} />
-                    <NavItem icon={LinkIcon} label="Manage Links" path="/dashboard/links" active={startsWith('/dashboard/links')} />
-                    <NavItem icon={CreditCard} label="Withdraw" path="/dashboard/withdraw" active={isAt('/dashboard/withdraw')} />
-                    
-                    <div style={{ padding: '1.5rem 1.5rem 0.5rem', fontSize: '0.75rem', fontWeight: '800', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Analytics</div>
-                    <NavItem icon={BarChart2} label="Traffic Stats" path="/dashboard/traffic" active={isAt('/dashboard/traffic')} />
-                    <NavItem icon={Users} label="Referrals" path="/dashboard/refer" active={isAt('/dashboard/refer')} />
+            <NavItem icon={LayoutDashboard} label="Dashboard" path="/dashboard" active={isAt('/dashboard')} />
+            <NavItem icon={LinkIcon} label="Manage Links" path="/dashboard/links" active={startsWith('/dashboard/links')} />
+            <NavItem icon={CreditCard} label="Withdraw" path="/dashboard/withdraw" active={isAt('/dashboard/withdraw')} />
+            
+            <div style={{ padding: '1.5rem 1.5rem 0.5rem', fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-light)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Analytics</div>
+            <NavItem icon={BarChart2} label="Traffic Stats" path="/dashboard/traffic" active={isAt('/dashboard/traffic')} />
+            <NavItem icon={Users} label="Referrals" path="/dashboard/refer" active={isAt('/dashboard/refer')} />
 
-                    <div style={{ padding: '1.5rem 1.5rem 0.5rem', fontSize: '0.75rem', fontWeight: '800', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Tools</div>
-                    <NavItem icon={Zap} label="Publisher Tools" path="#" hasChildren isOpen={openMenus.tools}
-                        onClick={(e) => { e.preventDefault(); toggleMenu('tools'); }} />
-                    {openMenus.tools && (
-                        <div style={{ margin: '0 0.5rem 0 1.25rem' }}>
-                            <NavItem isSub label="Quick Link" path="/dashboard/tools/quick" active={isAt('/dashboard/tools/quick')} />
-                            <NavItem isSub label="Full Page Script" path="/dashboard/tools/script" active={isAt('/dashboard/tools/script')} />
-                            <NavItem isSub label="Developer API" path="/dashboard/tools/api" active={isAt('/dashboard/tools/api')} />
-                        </div>
-                    )}
+            <div style={{ padding: '1.5rem 1.5rem 0.5rem', fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-light)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Tools</div>
+            <NavItem icon={Zap} label="Publisher Tools" path="#" hasChildren isOpen={openMenus.tools}
+                onClick={(e) => { e.preventDefault(); toggleMenu('tools'); }} />
+            {openMenus.tools && (
+                <div style={{ margin: '0 0.5rem 0 1.25rem' }}>
+                    <NavItem isSub label="Quick Link" path="/dashboard/tools/quick" active={isAt('/dashboard/tools/quick')} />
+                    <NavItem isSub label="Full Page Script" path="/dashboard/tools/script" active={isAt('/dashboard/tools/script')} />
+                    <NavItem isSub label="Developer API" path="/dashboard/tools/api" active={isAt('/dashboard/tools/api')} />
+                </div>
+            )}
 
-                    <div style={{ padding: '1.5rem 1.5rem 0.5rem', fontSize: '0.75rem', fontWeight: '800', color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Account</div>
-                    <NavItem icon={User} label="Profile" path="/dashboard/settings/profile" active={startsWith('/dashboard/settings')} />
-                    <NavItem icon={HelpCircle} label="FAQs" path="/pages/faq" active={false} />
-                </>
-            ) : (
+            <div style={{ padding: '1.5rem 1.5rem 0.5rem', fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-light)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Account</div>
+            <NavItem icon={User} label="Profile" path="/dashboard/settings/profile" active={startsWith('/dashboard/settings')} />
+            <NavItem icon={HelpCircle} label="FAQs" path="/pages/faq" active={false} />
+            
+            {user.role === 'Admin' && (
                 <>
-                    <NavItem icon={Shield} label="Admin Overview" path="/admin" active={isAt('/admin')} />
-                    <NavItem icon={Users} label="Users" path="/admin/users" active={isAt('/admin/users')} />
-                    <NavItem icon={Globe} label="CPM Rates" path="/admin/cpm" active={isAt('/admin/cpm')} />
-                    <NavItem icon={CreditCard} label="Payouts" path="/admin/payouts" active={isAt('/admin/payouts')} />
-                    <NavItem icon={FileCode} label="Pages" path="/admin/pages" active={isAt('/admin/pages')} />
+                    <div style={{ padding: '1.5rem 1.5rem 0.5rem', fontSize: '0.75rem', fontWeight: '800', color: '#7158E2', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Admin Hub</div>
+                    <NavItem icon={Shield} label="Admin Dashboard" path="/admin" active={false} />
                 </>
             )}
         </nav>
@@ -341,11 +338,11 @@ const DashboardLayout = ({ children, title, isAdmin = false }) => {
                 gap: '0.75rem',
                 padding: '0.75rem',
                 borderRadius: '12px',
-                border: '1px solid #fee2e2',
+                border: '1px solid var(--border)',
                 color: '#ef4444',
                 fontWeight: '700',
                 fontSize: '0.875rem',
-                background: '#fff5f5',
+                background: isDarkMode ? 'rgba(239, 68, 68, 0.1)' : '#fff5f5',
                 cursor: 'pointer'
             }}>
                 <LogOut size={18} /> Logout Session
@@ -358,7 +355,7 @@ const DashboardLayout = ({ children, title, isAdmin = false }) => {
         
         <header style={{ 
           height: '70px', 
-          background: '#ffffff', 
+          background: 'var(--bg-white)', 
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'space-between', 
@@ -366,16 +363,33 @@ const DashboardLayout = ({ children, title, isAdmin = false }) => {
           position: 'sticky',
           top: 0,
           zIndex: 900,
-          borderBottom: '1px solid #eee'
+          borderBottom: '1px solid var(--border)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <button onClick={() => setMobileOpen(!mobileOpen)} style={{ display: 'none', background: 'transparent', border: 'none', color: '#1a1a1a' }} className="mobile-toggle">
+            <button onClick={() => setMobileOpen(!mobileOpen)} style={{ display: 'none', background: 'transparent', border: 'none', color: 'var(--text)' }} className="mobile-toggle">
               <Menu size={24} />
             </button>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: '800', color: '#1a1a1a' }}>{title}</h2>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--text)' }}>{title}</h2>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+            {/* Theme Toggle */}
+            <button onClick={toggleTheme} style={{ 
+                background: 'var(--bg)', 
+                border: '1px solid var(--border)', 
+                color: 'var(--text)', 
+                width: '40px', 
+                height: '40px', 
+                borderRadius: '10px', 
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: '0.2s'
+            }}>
+                {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+
             <button onClick={() => setShowModal(true)} style={{ 
               background: 'var(--primary)', 
               color: 'white', 
@@ -392,15 +406,15 @@ const DashboardLayout = ({ children, title, isAdmin = false }) => {
                <Plus size={18} /> New Link
             </button>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', paddingLeft: '1.5rem', borderLeft: '1px solid #eee' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', paddingLeft: '1.5rem', borderLeft: '1px solid var(--border)' }}>
                 <div style={{ textAlign: 'right' }} className="user-info-text">
                     <div style={{ fontSize: '0.875rem', fontWeight: '800' }}>{user.name}</div>
-                    <div style={{ fontSize: '0.75rem', color: '#aaa', fontWeight: '700' }}>{user.role}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-light)', fontWeight: '700' }}>{user.role}</div>
                 </div>
                 <img
                   src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || 'U')}&background=7158E2&color=fff`}
                   alt="avatar"
-                  style={{ width: '40px', height: '40px', borderRadius: '50%', border: '2px solid #f0effc' }}
+                  style={{ width: '40px', height: '40px', borderRadius: '50%', border: '2px solid var(--primary-light)' }}
                 />
             </div>
           </div>
@@ -418,8 +432,11 @@ const DashboardLayout = ({ children, title, isAdmin = false }) => {
             .mobile-toggle { display: block !important; margin-right: 1rem; }
             .user-info-text { display: none; }
         }
-        .nav-item:hover { background: #f9f9f9 !important; }
-        .nav-item.active:hover { background: #F0EFFC !important; }
+        .nav-item:hover { background: var(--bg) !important; color: var(--primary) !important; }
+        .nav-item.active:hover { background: var(--primary-light) !important; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 2000; }
+        .modal { animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
       `}</style>
     </div>
   );

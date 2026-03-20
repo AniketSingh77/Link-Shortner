@@ -264,8 +264,8 @@ const Dashboard = () => {
                           <tr key={link._id} style={{ borderBottom: '1px solid var(--bg-alt)' }}>
                               <td style={{ padding: '1.25rem 0', fontWeight: '700', color: 'var(--text)' }}>{link.alias}</td>
                               <td style={{ padding: '1.25rem 0', color: 'var(--text-muted)', fontSize: '0.875rem' }}>{link.originalUrl.substring(0, 50)}...</td>
-                              <td style={{ padding: '1.25rem 0', textAlign: 'center', fontWeight: '700', color: 'var(--text)' }}>{link.views}</td>
-                              <td style={{ padding: '1.25rem 0', textAlign: 'right', fontWeight: '800', color: '#10b981' }}>${(link.views * 0.005).toFixed(4)}</td>
+                              <td style={{ padding: '1.25rem 0', textAlign: 'center', fontWeight: '700', color: 'var(--text)' }}>{link.clicks || 0}</td>
+                              <td style={{ padding: '1.25rem 0', textAlign: 'right', fontWeight: '800', color: '#10b981' }}>${(link.earnings || 0).toFixed(4)}</td>
                           </tr>
                       ))}
                   </tbody>

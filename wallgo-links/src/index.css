@@ -84,6 +84,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 html { scroll-behavior: smooth; }
@@ -441,7 +442,7 @@ h1, h2, h3, h4, h5, h6 {
 .btn-danger { background: var(--error); color: white; }
 .btn-danger:hover:not(:disabled) { background: #dc2626; }
 
-.btn-outline { background: white; border: 1px solid var(--border-dark); color: var(--text-muted); }
+.btn-outline { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted); }
 .btn-outline:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
 
 .btn-ghost { background: transparent; color: var(--text-muted); }
@@ -473,7 +474,7 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.875rem;
   font-family: inherit;
   color: var(--text);
-  background: white;
+  background: var(--bg-alt);
   transition: border-color var(--transition), box-shadow var(--transition);
   line-height: 1.5;
 }
@@ -497,7 +498,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .input-prefix {
-  background: #f1f5f9;
+  background: var(--bg-alt);
   border: 1px solid var(--border-dark);
   border-right: none;
   border-radius: var(--radius-sm) 0 0 var(--radius-sm);
@@ -533,7 +534,7 @@ table {
 }
 
 thead th {
-  background: #fafbfc;
+  background: var(--bg-alt);
   padding: 0.75rem 1rem;
   text-align: left;
   font-size: 0.6875rem;
@@ -553,7 +554,7 @@ tbody td {
 }
 
 tbody tr:last-child td { border-bottom: none; }
-tbody tr:hover td { background: #faf9ff; }
+tbody tr:hover td { background: var(--primary-light); }
 
 /* =====================================================
    BADGES & STATUS
@@ -592,7 +593,7 @@ tbody tr:hover td { background: #faf9ff; }
 }
 
 .modal {
-  background: white;
+  background: var(--bg-card);
   border-radius: var(--radius-md);
   padding: 2rem;
   width: 100%;

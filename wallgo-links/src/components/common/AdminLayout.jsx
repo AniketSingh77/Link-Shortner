@@ -28,19 +28,19 @@ const AdminLayout = ({ children, title }) => {
       <aside style={{ 
         width: '280px', 
         background: 'var(--bg-sidebar)', 
-        color: '#fff',
+        color: 'var(--text)',
         position: 'fixed',
         top: 0, bottom: 0, left: 0,
         zIndex: 1000,
-        transition: '0.3s',
+        transition: 'var(--transition)',
         borderRight: '1px solid var(--border)'
       }} className={`admin-sidebar ${mobileOpen ? 'open' : ''}`}>
-        <div style={{ padding: '2rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+        <div style={{ padding: '2rem 1.5rem', borderBottom: '1px solid var(--border)' }}>
             <Link to="/admin" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
-                <div style={{ background: '#7c3aed', padding: '0.5rem', borderRadius: '10px' }}>
+                <div style={{ background: 'var(--primary)', padding: '0.5rem', borderRadius: '10px' }}>
                     <Shield size={22} color="white" />
                 </div>
-                <span style={{ fontSize: '1.25rem', fontWeight: '800', color: 'white' }}>Admin<span style={{ color: '#a78bfa' }}>Hub</span></span>
+                <span style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--text)' }}>Admin<span style={{ color: 'var(--primary)' }}>Hub</span></span>
             </Link>
         </div>
 
@@ -51,9 +51,9 @@ const AdminLayout = ({ children, title }) => {
                     alignItems: 'center',
                     gap: '1rem',
                     padding: '0.875rem 1.5rem',
-                    color: isAt(item.path) ? '#a78bfa' : 'rgba(255,255,255,0.6)',
-                    background: isAt(item.path) ? 'rgba(167,139,250,0.1)' : 'transparent',
-                    borderLeft: `4px solid ${isAt(item.path) ? '#a78bfa' : 'transparent'}`,
+                    color: isAt(item.path) ? 'var(--primary)' : 'var(--text-muted)',
+                    background: isAt(item.path) ? 'var(--primary-light)' : 'transparent',
+                    borderLeft: `4px solid ${isAt(item.path) ? 'var(--primary)' : 'transparent'}`,
                     textDecoration: 'none',
                     fontWeight: isAt(item.path) ? '700' : '500',
                     transition: '0.2s'
@@ -64,12 +64,12 @@ const AdminLayout = ({ children, title }) => {
             ))}
         </nav>
 
-        <div style={{ marginTop: 'auto', padding: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+        <div style={{ marginTop: 'auto', padding: '1.5rem', borderTop: '1px solid var(--border)' }}>
             <Link to="/dashboard" style={{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.75rem',
-                color: 'rgba(255,255,255,0.5)',
+                color: 'var(--text-light)',
                 textDecoration: 'none',
                 fontSize: '0.875rem',
                 fontWeight: '700'

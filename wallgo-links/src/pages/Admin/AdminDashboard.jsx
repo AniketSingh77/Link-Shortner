@@ -279,6 +279,99 @@ const PayoutsTab = () => {
 };
 
 // ===================================================
+// SETTINGS TAB
+// ===================================================
+const SettingsTab = () => {
+  const [config, setConfig] = useState({
+    steps: 2,
+    timer: 15,
+    backgroundSites: ['https://www.pastex.online/'],
+    adBannerIds: {
+      top: 'fc4c80a53247a4cd577428a7e29741d0',
+      sidebar: '3334f040539d82d83a45dcee7b1e54f2',
+      content: '3334f040539d82d83a45dcee7b1e54f2'
+    }
+  });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    api.get('/admin/settings').then(r => {
+      const adConf = r.data.find(s => s.key === 'ad_config');
+      if (adConf) setConfig(adConf.value);
+    }).finally(() => setLoading(false));
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await api.post('/admin/settings', { key: 'ad_config', value: config });
+      alert('Settings saved successfully!');
+    } catch (err) { alert('Failed to save settings'); }
+    finally { setSaving(false); }
+  };
+
+  if (loading) return <div style={{ textAlign: 'center', padding: '5rem' }}><Activity size={40} className="spin" /></div>;
+
+  return (
+    <div style={{ marginTop: '2rem', maxWidth: '800px' }}>
+      <div style={{ background: 'white', padding: '2.5rem', borderRadius: '24px', border: '1px solid #eee' }}>
+        <h3 style={{ fontSize: '1.5rem', fontWeight: '800', marginBottom: '2rem' }}>Redirect & Ad Setup</h3>
+        
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2.5rem' }}>
+          <div>
+            <label style={{ display: 'block', fontWeight: '800', fontSize: '0.875rem', marginBottom: '0.75rem' }}>Number of Ads Pages</label>
+            <input type="number" value={config.steps} onChange={e => setConfig({...config, steps: parseInt(e.target.value)})}
+              style={{ width: '100%', padding: '0.875rem', borderRadius: '12px', border: '1px solid #eee', background: '#f9f9f9', fontWeight: '700' }} />
+          </div>
+          <div>
+            <label style={{ display: 'block', fontWeight: '800', fontSize: '0.875rem', marginBottom: '0.75rem' }}>Timer (Seconds)</label>
+            <input type="number" value={config.timer} onChange={e => setConfig({...config, timer: parseInt(e.target.value)})}
+              style={{ width: '100%', padding: '0.875rem', borderRadius: '12px', border: '1px solid #eee', background: '#f9f9f9', fontWeight: '700' }} />
+          </div>
+        </div>
+
+        <div style={{ marginBottom: '2.5rem' }}>
+          <label style={{ display: 'block', fontWeight: '800', fontSize: '0.875rem', marginBottom: '0.75rem' }}>Background Websites (comma separated)</label>
+          <input type="text" value={config.backgroundSites.join(', ')} onChange={e => setConfig({...config, backgroundSites: e.target.value.split(',').map(s => s.trim())})}
+            placeholder="https://pastex.online, https://example.com"
+            style={{ width: '100%', padding: '0.875rem', borderRadius: '12px', border: '1px solid #eee', background: '#f9f9f9', fontWeight: '700' }} />
+        </div>
+
+        <div style={{ borderTop: '1px solid #eee', paddingTop: '2rem', marginBottom: '2.5rem' }}>
+            <h4 style={{ fontSize: '1rem', fontWeight: '800', marginBottom: '1.5rem', color: 'var(--primary)' }}>Ad Tag Configuration</h4>
+            <div style={{ display: 'grid', gap: '1.5rem' }}>
+                <div>
+                   <label style={{ display: 'block', fontWeight: '700', fontSize: '0.8125rem', marginBottom: '0.5rem', color: '#666' }}>Top Banner ID (728x90)</label>
+                   <input type="text" value={config.adBannerIds.top} onChange={e => setConfig({...config, adBannerIds: {...config.adBannerIds, top: e.target.value}})}
+                     style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', border: '1px solid #eee', background: '#f9f9f9' }} />
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                   <div>
+                      <label style={{ display: 'block', fontWeight: '700', fontSize: '0.8125rem', marginBottom: '0.5rem', color: '#666' }}>Sidebar ID (160x600)</label>
+                      <input type="text" value={config.adBannerIds.sidebar} onChange={e => setConfig({...config, adBannerIds: {...config.adBannerIds, sidebar: e.target.value}})}
+                        style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', border: '1px solid #eee', background: '#f9f9f9' }} />
+                   </div>
+                   <div>
+                      <label style={{ display: 'block', fontWeight: '700', fontSize: '0.8125rem', marginBottom: '0.5rem', color: '#666' }}>Content ID (300x250)</label>
+                      <input type="text" value={config.adBannerIds.content} onChange={e => setConfig({...config, adBannerIds: {...config.adBannerIds, content: e.target.value}})}
+                        style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', border: '1px solid #eee', background: '#f9f9f9' }} />
+                   </div>
+                </div>
+            </div>
+        </div>
+
+        <button onClick={handleSave} disabled={saving} style={{ 
+          width: '100%', padding: '1.25rem', borderRadius: '16px', border: 'none', background: 'var(--primary)', color: 'white', fontWeight: '800', fontSize: '1.125rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', transition: '0.3s'
+        }}>
+          {saving ? 'Updating System...' : <><Settings size={22} /> Update Ad Protocol</>}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// ===================================================
 // MAIN ADMIN DASHBOARD
 // ===================================================
 const AdminDashboard = () => {
@@ -286,6 +379,7 @@ const AdminDashboard = () => {
     { id: 'overview', label: 'Overview', icon: BarChart2 },
     { id: 'users', label: 'Users', icon: Users },
     { id: 'payouts', label: 'Payouts', icon: CreditCard },
+    { id: 'settings', label: 'Ads Setup', icon: Settings },
   ];
 
   const [activeTab, setActiveTab] = useState('overview');
@@ -303,6 +397,7 @@ const AdminDashboard = () => {
       {activeTab === 'overview' && <OverviewTab />}
       {activeTab === 'users' && <UsersTab />}
       {activeTab === 'payouts' && <PayoutsTab />}
+      {activeTab === 'settings' && <SettingsTab />}
       <style>{`.spin { animation: spin 1s linear infinite; } @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </DashboardLayout>
   );

@@ -206,4 +206,36 @@ router.post('/payouts/reject/:id', [auth, isAdmin], async (req, res) => {
   }
 });
 
+const Settings = require('../models/Settings');
+
+// @route   GET api/admin/settings
+// @desc    Get all settings
+router.get('/settings', [auth, isAdmin], async (req, res) => {
+  try {
+    const settings = await Settings.find();
+    res.json(settings);
+  } catch (err) {
+    res.status(500).send('Server Error');
+  }
+});
+
+// @route   POST api/admin/settings
+// @desc    Update/Create a setting
+router.post('/settings', [auth, isAdmin], async (req, res) => {
+  const { key, value } = req.body;
+  try {
+    let setting = await Settings.findOne({ key });
+    if (setting) {
+      setting.value = value;
+      setting.updatedAt = Date.now();
+    } else {
+      setting = new Settings({ key, value });
+    }
+    await setting.save();
+    res.json(setting);
+  } catch (err) {
+    res.status(500).send('Server Error');
+  }
+});
+
 module.exports = router;

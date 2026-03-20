@@ -190,6 +190,27 @@ mongoose.connect(process.env.MONGODB_URI)
       console.log('✅ Seeded 7 default static pages');
     }
 
+    // --- Seed Default Settings ---
+    const Settings = require('./models/Settings');
+    const settingsCount = await Settings.countDocuments();
+    if (settingsCount === 0) {
+      await Settings.create({
+        key: 'ad_config',
+        value: {
+          steps: 2,
+          timer: 15,
+          backgroundSites: ['https://www.pastex.online/'],
+          adBannerIds: {
+            top: 'fc4c80a53247a4cd577428a7e29741d0',
+            sidebar: '3334f040539d82d83a45dcee7b1e54f2',
+            content: '3334f040539d82d83a45dcee7b1e54f2'
+          }
+        },
+        description: 'Global configuration for Redirect/Bridge page and Ad units'
+      });
+      console.log('✅ Seeded default ad_config settings');
+    }
+
     app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
   })
   .catch(err => console.log(err));

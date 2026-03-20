@@ -35,4 +35,18 @@ router.put('/:slug', auth, async (req, res) => {
   }
 });
 
+const Settings = require('../models/Settings');
+
+// @route   GET api/pages/settings/ad-config
+// @desc    Get ad-config (public)
+router.get('/settings/ad-config', async (req, res) => {
+  try {
+    const setting = await Settings.findOne({ key: 'ad_config' });
+    if (!setting) return res.json({ value: { steps: 2, timer: 15, backgroundSites: ['https://www.pastex.online/'], adBannerIds: { top: 'fc4c80a53247a4cd577428a7e29741d0', sidebar: '3334f040539d82d83a45dcee7b1e54f2', content: '3334f040539d82d83a45dcee7b1e54f2' } } });
+    res.json(setting);
+  } catch (err) {
+    res.status(500).send('Server Error');
+  }
+});
+
 module.exports = router;

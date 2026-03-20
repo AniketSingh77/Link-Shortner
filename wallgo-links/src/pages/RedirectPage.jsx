@@ -4,25 +4,50 @@ import { Zap, ExternalLink, ShieldCheck, AlertCircle, Info, Lock, ArrowRight, Ch
 import AdBanner from '../components/AdBanner';
 
 const RedirectPage = () => {
+  const [config, setConfig] = useState({
+    steps: 2,
+    timer: 15,
+    backgroundSites: ['https://www.pastex.online/'],
+    adBannerIds: {
+      top: 'fc4c80a53247a4cd577428a7e29741d0',
+      sidebar: '3334f040539d82d83a45dcee7b1e54f2',
+      content: '3334f040539d82d83a45dcee7b1e54f2'
+    }
+  });
   const [step, setStep] = useState(1);
   const [timeLeft, setTimeLeft] = useState(15);
   const [canProceed, setCanProceed] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [bgSite, setBgSite] = useState('https://www.pastex.online/');
+  
   const [searchParams] = useSearchParams();
   const targetUrl = searchParams.get('target');
 
   useEffect(() => {
+    api.get('/pages/settings/ad-config').then(r => {
+      const conf = r.data.value || r.data;
+      setConfig(conf);
+      setTimeLeft(conf.timer || 15);
+      if (conf.backgroundSites?.length) {
+          setBgSite(conf.backgroundSites[Math.floor(Math.random() * conf.backgroundSites.length)]);
+      }
+    }).finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
     let timer;
-    if (step === 2 && timeLeft > 0) {
+    // Step starts from 1. If step < config.steps, we just show "PROCEED" buttons.
+    // The LAST step (step === config.steps) has the timer.
+    if (step === config.steps && timeLeft > 0) {
       timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
-    } else if (step === 2 && timeLeft === 0) {
+    } else if (step === config.steps && timeLeft === 0) {
       setCanProceed(true);
     }
     return () => clearTimeout(timer);
-  }, [step, timeLeft]);
+  }, [step, timeLeft, config.steps]);
 
   const handleNextStep = () => {
-    setStep(2);
-    // Silent background load or other subtle engagement
+    setStep(prev => prev + 1);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -32,13 +57,19 @@ const RedirectPage = () => {
     }
   };
 
+  if (loading) return (
+    <div style={{ minHeight: '100vh', background: '#050505', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Activity size={50} className="spin" style={{ color: '#7158E2' }} />
+    </div>
+  );
+
   return (
     <div style={{ minHeight: '100vh', background: '#050505', color: 'white', fontFamily: "'Inter', sans-serif", position: 'relative', overflowX: 'hidden' }}>
       
-      {/* BACKGROUND WEBSITE LAYER (PASTEX.ONLINE) */}
+      {/* BACKGROUND WEBSITE LAYER (From Admin Config) */}
       <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, pointerEvents: 'none', opacity: 0.15 }}>
         <iframe 
-            src="https://www.pastex.online/" 
+            src={bgSite}
             title="Background Verification"
             style={{ width: '100%', height: '100%', border: 'none' }} 
         />
@@ -59,10 +90,10 @@ const RedirectPage = () => {
             </Link>
             <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
                 <span style={{ fontSize: '0.75rem', fontWeight: '800', color: '#10b981', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <ShieldCheck size={14} /> ENCRYPTED NODE 24
+                    <ShieldCheck size={14} /> SECURITY SCAN: OK
                 </span>
                 <div style={{ height: '24px', width: '1px', background: 'rgba(255,255,255,0.1)' }}></div>
-                <span style={{ fontSize: '0.75rem', fontWeight: '700', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Secure Transit</span>
+                <span style={{ fontSize: '0.75rem', fontWeight: '700', color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Step {step} of {config.steps}</span>
             </div>
             </div>
         </nav>
@@ -71,8 +102,8 @@ const RedirectPage = () => {
             
             {/* TOP AD GRID */}
             <div style={{ marginBottom: '2.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%', alignItems: 'center' }}>
-                <AdBanner id="fc4c80a53247a4cd577428a7e29741d0" format="iframe" height={90} width={728} />
-                <div style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.2)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1rem' }}>Sponsor Nodes</div>
+                <AdBanner id={config.adBannerIds.top} format="iframe" height={90} width={728} />
+                <div style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.2)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.1rem' }}>Global Sponsoring Nodes</div>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 3fr 1fr', gap: '2rem', width: '100%', maxWidth: '1400px' }}>
@@ -80,51 +111,49 @@ const RedirectPage = () => {
                 {/* LEFT SIDEBAR ADS */}
                 <aside style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                     <div style={{ background: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                        <AdBanner id="3334f040539d82d83a45dcee7b1e54f2" format="iframe" height={600} width={160} />
+                        <AdBanner id={config.adBannerIds.sidebar} format="iframe" height={600} width={160} />
                     </div>
                 </aside>
 
                 {/* MAIN CONTENT AREA */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                     
-                    {/* FAKE NEWS / CONTENT TO MIMIC BLOG */}
                     <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '32px', padding: '2.5rem', position: 'relative', overflow: 'hidden' }}>
                         <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '2rem' }}>
                             <div style={{ background: 'rgba(113,88,226,0.15)', color: '#7158E2', padding: '1rem', borderRadius: '16px' }}><ShieldAlert size={32} /></div>
                             <div>
-                                <h3 style={{ fontSize: '1.25rem', fontWeight: '950', marginBottom: '0.5rem' }}>Data Integrity Hash Verification</h3>
-                                <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.9375rem', lineHeight: '1.5' }}>Link metadata is being scanned across global decentralized nodes to ensure destination safety. Please follow the instructions below.</p>
+                                <h3 style={{ fontSize: '1.25rem', fontWeight: '950', marginBottom: '0.5rem' }}>Automated Traffic Filter</h3>
+                                <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.9375rem', lineHeight: '1.5' }}>Link metadata is being scanned across {config.steps} security layers. Destination payload is active within the cluster.</p>
                             </div>
                         </div>
 
-                        {/* STEP 1 CONTROLS */}
-                        {step === 1 && (
+                        {/* INTERMEDIATE STEPS */}
+                        {step < config.steps ? (
                             <div style={{ textAlign: 'center', padding: '2rem 0' }}>
                                 <div style={{ marginBottom: '2rem' }}>
-                                    <AdBanner id="3334f040539d82d83a45dcee7b1e54f2" format="iframe" height={250} width={300} />
+                                    <AdBanner id={config.adBannerIds.content} format="iframe" height={250} width={300} />
                                 </div>
                                 <button 
                                     onClick={handleNextStep}
                                     style={{ 
-                                        width: '100%', maxWidth: '400px', padding: '1.5rem', borderRadius: '20px', border: 'none', background: 'var(--primary)', color: 'white', fontSize: '1.25rem', fontWeight: '950', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', transition: '0.3s', boxShadow: '0 15px 30px rgba(113, 88, 226, 0.3)'
+                                        width: '100%', maxWidth: '400px', padding: '1.5rem', borderRadius: '20px', border: 'none', background: '#7158E2', color: 'white', fontSize: '1.25rem', fontWeight: '950', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1rem', transition: '0.3s', boxShadow: '0 15px 30px rgba(113, 88, 226, 0.3)'
                                     }}
                                 >
-                                    PROCEED TO NEXT STEP <ArrowRight size={24} />
+                                    CONTINUE TO NEXT PAGE <ArrowRight size={24} />
                                 </button>
-                                <div style={{ marginTop: '1.5rem', color: 'rgba(255,255,255,0.2)', fontSize: '0.75rem', fontWeight: '700' }}>By clicking you agree to our transit protocols</div>
+                                <div style={{ marginTop: '2.5rem' }}>
+                                    <AdBanner id={config.adBannerIds.content} format="iframe" height={250} width={300} />
+                                </div>
                             </div>
-                        )}
-
-                        {/* STEP 2 TIMER & REAL LINK */}
-                        {step === 2 && (
+                        ) : (
+                            /* FINAL STEP WITH TIMER */
                             <div style={{ textAlign: 'center' }}>
                                 <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', marginBottom: '3rem' }}>
-                                    {/* FAKE DOWNLOAD BUTTONS (AD TRAPS) */}
                                     <button style={{ flex: 1, padding: '1rem', borderRadius: '16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.4)', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
                                         <Download size={18} /> High Speed DL
                                     </button>
                                     <button style={{ flex: 1, padding: '1rem', borderRadius: '16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.4)', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                                        <MousePointer2 size={18} /> Direct Access
+                                        <MousePointer2 size={18} /> Secure Access
                                     </button>
                                 </div>
 
@@ -134,7 +163,7 @@ const RedirectPage = () => {
                                             <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="6" />
                                             <circle cx="60" cy="60" r="54" fill="none" stroke="#7158E2" strokeWidth="6" 
                                             strokeDasharray="339.29" 
-                                            strokeDashoffset={339.29 - (339.29 * (15 - timeLeft) / 15)}
+                                            strokeDashoffset={339.29 - (339.29 * (config.timer - timeLeft) / config.timer)}
                                             strokeLinecap="round"
                                             style={{ transition: 'stroke-dashoffset 1s linear', transform: 'rotate(-90deg)', transformOrigin: 'center' }}
                                             />
@@ -146,7 +175,7 @@ const RedirectPage = () => {
                                 </div>
 
                                 <div style={{ maxWidth: '400px', margin: '0 auto 3rem' }}>
-                                    <AdBanner id="3334f040539d82d83a45dcee7b1e54f2" format="iframe" height={250} width={300} />
+                                    <AdBanner id={config.adBannerIds.content} format="iframe" height={250} width={300} />
                                 </div>
 
                                 <button 
@@ -162,18 +191,18 @@ const RedirectPage = () => {
                                         letterSpacing: '0.05em'
                                     }}
                                 >
-                                    {canProceed ? 'DECRYPT LINK & PROCEED' : `INITIALIZING PAYLOAD (${timeLeft}s)`}
+                                    {canProceed ? 'GET DESTINATION LINK' : `WAIT FOR VERIFICATION (${timeLeft}s)`}
                                     <ExternalLink size={24} />
                                 </button>
                             </div>
                         )}
                     </div>
 
-                    {/* CONTENT AD GRID (INSTANTLINKS STYLE) */}
+                    {/* DYNAMIC AD GRID */}
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
                         {[1, 2, 3, 4].map(i => (
                             <div key={i} style={{ background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '24px', padding: '0.75rem', textAlign: 'center' }}>
-                                <AdBanner id="3334f040539d82d83a45dcee7b1e54f2" format="iframe" height={250} width={300} />
+                                <AdBanner id={config.adBannerIds.content} format="iframe" height={250} width={300} />
                             </div>
                         ))}
                     </div>
@@ -182,7 +211,7 @@ const RedirectPage = () => {
                 {/* RIGHT SIDEBAR ADS */}
                 <aside style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                     <div style={{ background: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                        <AdBanner id="3334f040539d82d83a45dcee7b1e54f2" format="iframe" height={600} width={160} />
+                        <AdBanner id={config.adBannerIds.sidebar} format="iframe" height={600} width={160} />
                     </div>
                 </aside>
             </div>
@@ -196,17 +225,14 @@ const RedirectPage = () => {
                 ))}
                 </div>
                 <div style={{ marginBottom: '2.5rem', opacity: 0.5 }}>
-                    <AdBanner id="fc4c80a53247a4cd577428a7e29741d0" format="iframe" height={90} width={728} />
+                    <AdBanner id={config.adBannerIds.top} format="iframe" height={90} width={728} />
                 </div>
-                <p style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.75rem', fontWeight: '600' }}>© 2026 Wallgo Security Mesh Cluster. Sovereign Node ID: 882-Alpha. All encrypted traffic monitored by RSA-4096 Protocol.</p>
+                <p style={{ color: 'rgba(255,255,255,0.2)', fontSize: '0.75rem', fontWeight: '600' }}>© 2026 Admin Controlled Transit Cluster. All encrypted traffic monitored.</p>
             </div>
         </footer>
       </div>
 
-      <style>{`
-        .hover\\:text-primary:hover { color: #7158E2 !important; }
-        .transition-colors { transition: 0.3s; }
-      `}</style>
+      <style>{`.hover\\:text-primary:hover { color: #7158E2 !important; } .transition-colors { transition: 0.3s; } .spin { animation: spin 1s linear infinite; } @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 };

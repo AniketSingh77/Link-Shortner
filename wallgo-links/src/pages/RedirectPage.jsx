@@ -129,22 +129,37 @@ const RedirectPage = () => {
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-alt)', color: 'var(--text)', fontFamily: "'Inter', sans-serif", position: 'relative' }}>
       
-      {/* OPTIONAL BACKGROUND IFRAME (Controlled by Admin) */}
+      {/* BACKGROUND WEBSITE (Professional Blog Mode) */}
       {currentBgSite && currentBgSite !== 'https://' && (
-          <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, opacity: 0.15 }}>
+          <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, opacity: 0.5, pointerEvents: 'none' }}>
               <iframe src={currentBgSite} title="bg" style={{ width: '100%', height: '100%', border: 'none' }} />
           </div>
       )}
 
+      {/* DARK OVERLAY FOR FOCUS */}
+      <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.6)', zIndex: 1, pointerEvents: 'none' }} />
+
+      {/* STICKY TOP AD */}
+      <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '90px', zIndex: 1000, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+           <AdBanner rawCode={config?.adCodes?.top} id={config?.adBannerIds?.top} format="iframe" width={728} height={90} />
+      </div>
+
+      {/* STICKY BOTTOM AD */}
+      <div style={{ position: 'fixed', bottom: 0, left: 0, width: '100%', height: '90px', zIndex: 1000, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+           <AdBanner rawCode={config?.adCodes?.top} id={config?.adBannerIds?.top} format="iframe" width={728} height={90} />
+      </div>
+
       {/* PROFESSIONAL NAVBAR */}
       <nav style={{ 
-          background: 'var(--bg-card)', 
-          borderBottom: '1px solid var(--border)', 
+          background: 'rgba(255,255,255,0.05)', 
+          backdropFilter: 'blur(10px)',
+          borderBottom: '1px solid rgba(255,255,255,0.1)', 
           padding: '1rem 2rem', 
-          position: 'sticky', 
-          top: 0, 
-          zIndex: 100,
-          boxShadow: 'var(--shadow)'
+          position: 'fixed', 
+          top: '90px', 
+          width: '100%',
+          zIndex: 900,
+          boxShadow: '0 4px 20px rgba(0,0,0,0.2)'
       }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
@@ -161,37 +176,28 @@ const RedirectPage = () => {
         </div>
       </nav>
 
-      <main style={{ maxWidth: '1000px', margin: '2rem auto', padding: '0 1.5rem', position: 'relative', zIndex: 1 }}>
+      <main style={{ maxWidth: '900px', margin: '180px auto', padding: '0 1.5rem', position: 'relative', zIndex: 10 }}>
         
-        {/* TOP AD UNIT */}
-        <div style={{ marginBottom: '2.5rem', textAlign: 'center' }}>
-            <div style={{ fontSize: '0.7rem', color: 'var(--text-light)', marginBottom: '0.5rem', fontWeight: '700' }}>ADVERTISEMENT</div>
-            <AdBanner rawCode={config?.adCodes?.top} id={config?.adBannerIds?.top} format="iframe" width={728} height={90} />
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '2rem' }} className="responsive-grid">
-            
-            {/* MAIN CONTENT AREA */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                
-                {/* HERO CARD */}
-                <div style={{ 
-                    background: 'var(--bg-card)', 
-                    borderRadius: '24px', 
-                    padding: '2.5rem', 
-                    border: '1px solid var(--border)',
-                    boxShadow: '0 20px 50px rgba(0,0,0,0.1)',
-                    position: 'relative',
-                    overflow: 'hidden'
-                }}>
+        {/* MAIN HERO CARD (Centered Floating Glass Widget) */}
+        <div style={{ 
+            background: 'rgba(255,255,255,0.95)', 
+            backdropFilter: 'blur(15px)',
+            borderRadius: '28px', 
+            padding: '3rem', 
+            border: '1px solid white',
+            boxShadow: '0 40px 100px rgba(0,0,0,0.5)',
+            position: 'relative',
+            overflow: 'hidden',
+            color: '#1a1a1a'
+        }}>
                     <div style={{ position: 'relative', zIndex: 1 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2rem' }}>
                              <div>
                                 <span style={{ background: 'var(--primary-light)', color: 'var(--primary)', padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase', marginBottom: '1rem', display: 'inline-block' }}>
                                     External Destination Ready
                                 </span>
-                                <h1 style={{ fontSize: '1.75rem', fontWeight: '900', color: 'var(--text)', lineHeight: '1.2' }}>{linkDetails.title}</h1>
-                                <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', marginTop: '0.5rem' }}>Please follow the verification points to safely access the URL.</p>
+                                <h1 style={{ fontSize: '2rem', fontWeight: '950', color: '#000', lineHeight: '1.1', letterSpacing: '-0.02em' }}>{linkDetails.title}</h1>
+                                <p style={{ color: '#666', fontSize: '0.9rem', marginTop: '0.8rem', fontWeight: '600' }}>You are currently on <span style={{ color: 'var(--primary)', fontWeight: '800' }}>Step {step}/{config.steps}</span>. Please verify to reach destination.</p>
                              </div>
                              <div style={{ textAlign: 'right' }}>
                                 <div style={{ fontSize: '0.75rem', color: 'var(--text-light)', fontWeight: '700' }}>VERIFICATION</div>
@@ -274,53 +280,18 @@ const RedirectPage = () => {
                         </div>
                     </div>
 
-                    {/* BG ACCENTS */}
-                    <div style={{ position: 'absolute', top: '-50px', left: '-50px', width: '200px', height: '200px', border: '40px solid var(--primary)', borderRadius: '50%', opacity: 0.02 }} />
                 </div>
 
-                {/* CONTENT AD (IN-LINE) */}
-                <div style={{ background: 'var(--bg-card)', padding: '2.5rem', borderRadius: '28px', border: '1px solid var(--border)', textAlign: 'center', boxShadow: 'var(--shadow)' }}>
-                     <div style={{ fontSize: '0.75rem', color: 'var(--text-light)', marginBottom: '1.25rem', fontWeight: '800', letterSpacing: '0.05em' }}>PROMOTED CONTENT</div>
-                     <AdBanner rawCode={config?.adCodes?.content} id={config?.adBannerIds?.content} format="iframe" width={300} height={250} />
-                </div>
-
-                {/* INFO TILES */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }} className="mobile-single">
-                    <div style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: '24px', border: '1px solid var(--border)', textAlign: 'center' }}>
-                         <Download size={32} color="var(--primary)" style={{ marginBottom: '1rem' }} />
-                         <h5 style={{ fontWeight: '900', marginBottom: '0.5rem' }}>Fast Download</h5>
-                         <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>High-speed secure servers for redirecting traffic.</p>
-                    </div>
-                    <div style={{ background: 'var(--bg-card)', padding: '1.5rem', borderRadius: '24px', border: '1px solid var(--border)', textAlign: 'center' }}>
-                         <Shield size={32} color="#10b981" style={{ marginBottom: '1rem' }} />
-                         <h5 style={{ fontWeight: '900', marginBottom: '0.5rem' }}>Safe & Clean</h5>
-                         <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Malware-free links verified by multiple sources.</p>
-                    </div>
-                </div>
+        {/* IN-PAGE BANNER ADS */}
+        <div style={{ marginTop: '2.5rem', display: 'grid', gridTemplateColumns: '1fr 300px', gap: '2rem' }} className="responsive-grid">
+            <div style={{ background: 'white', padding: '2rem', borderRadius: '24px', border: '1px solid #eee', textAlign: 'center' }}>
+                <div style={{ fontSize: '0.75rem', color: '#999', marginBottom: '1rem', fontWeight: '800' }}>ADVERTISEMENT</div>
+                <AdBanner rawCode={config?.adCodes?.content} width={300} height={250} />
             </div>
-
-            {/* SIDEBAR */}
-            <aside style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                
-                {/* SIDEBAR AD 1 */}
-                <div style={{ background: 'var(--bg-card)', padding: '2rem', borderRadius: '28px', border: '1px solid var(--border)', textAlign: 'center', boxShadow: 'var(--shadow)' }}>
-                    <div style={{ fontSize: '0.7rem', color: 'var(--text-light)', marginBottom: '1.5rem', fontWeight: '800' }}>SPONSORED AD</div>
-                    <AdBanner rawCode={config?.adCodes?.sidebar} id={config?.adBannerIds?.sidebar} format="iframe" width={250} height={250} />
-                </div>
-
-                {/* REVENUE CARD */}
-                <div style={{ background: 'linear-gradient(135deg, #7158E2 0%, #a78bfa 100%)', color: 'white', padding: '2.25rem', borderRadius: '28px', boxShadow: '0 15px 30px rgba(113, 88, 226, 0.3)' }}>
-                    <DollarSign size={40} style={{ marginBottom: '1.5rem' }} />
-                    <h4 style={{ fontSize: '1.25rem', fontWeight: '950', marginBottom: '0.75rem' }}>Earn With Us</h4>
-                    <p style={{ fontSize: '0.8125rem', opacity: 0.9, lineHeight: '1.6' }}>Create your own links and earn money for every single click you get. Sign up today!</p>
-                    <Link to="/register" style={{ display: 'inline-block', marginTop: '1.5rem', background: 'white', color: '#7158E2', padding: '0.6rem 1.25rem', borderRadius: '12px', textDecoration: 'none', fontWeight: '900', fontSize: '0.875rem' }}>Join Now</Link>
-                </div>
-
-                 {/* SIDEBAR AD 2 */}
-                 <div style={{ background: 'var(--bg-card)', padding: '2rem', borderRadius: '28px', border: '1px solid var(--border)', textAlign: 'center', boxShadow: 'var(--shadow)' }}>
-                    <AdBanner rawCode={config?.adCodes?.content} id={config?.adBannerIds?.content} format="iframe" width={250} height={250} />
-                </div>
-            </aside>
+            <div style={{ background: 'white', padding: '2rem', borderRadius: '24px', border: '1px solid #eee', textAlign: 'center' }}>
+                <div style={{ fontSize: '0.75rem', color: '#999', marginBottom: '1rem', fontWeight: '800' }}>ADVERTISEMENT</div>
+                <AdBanner rawCode={config?.adCodes?.sidebar} width={250} height={250} />
+            </div>
         </div>
 
         {/* BOTTOM WIDE AD */}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/common/DashboardLayout';
-import { Gift, Copy, Users, TrendingUp, ShieldCheck, Share2, Wallet, Star, Crown, Zap, CheckCircle2, QrCode, Sparkles, Shield, ArrowRight, Network } from 'lucide-react';
+import { Gift, Copy, Users, TrendingUp, ShieldCheck, Share2, Wallet, Star, Crown, Zap, CheckCircle2, QrCode, Sparkles, Shield, ArrowRight, Network, UserPlus } from 'lucide-react';
 import api from '../utils/api';
 
 const StatCard = ({ icon: Icon, label, value, color, subText }) => (

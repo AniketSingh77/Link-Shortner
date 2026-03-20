@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/common/DashboardLayout';
-import { User, CheckCircle2, Save, Lock, Mail, Phone, MapPin, CreditCard, Shield, Zap, Copy, X, Camera, Globe, Fingerprint, Crown, Sparkles, ShieldCheck, ArrowRight, Settings } from 'lucide-react';
+import { User, CheckCircle2, Save, Lock, Mail, Phone, MapPin, CreditCard, Shield, Zap, Copy, X, Camera, Globe, Fingerprint, Crown, Sparkles, ShieldCheck, ArrowRight, Settings, Activity } from 'lucide-react';
 import api from '../utils/api';
 
 const Profile = () => {

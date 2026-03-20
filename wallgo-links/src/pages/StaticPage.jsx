@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
-import { Zap, BookOpen, ChevronRight, FileText, Shield, Scale, Info, HelpCircle, Mail, Sparkles, ArrowLeft, Terminal } from 'lucide-react';
+import { Zap, BookOpen, ChevronRight, FileText, Shield, Scale, Info, HelpCircle, Mail, Sparkles, ArrowLeft, Terminal, Activity } from 'lucide-react';
 import api from '../utils/api';
 
 const StaticPage = () => {

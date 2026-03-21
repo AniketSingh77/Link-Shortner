@@ -48,13 +48,10 @@ const ShortLinkRedirect = () => {
         const reserved = ['login', 'register', 'dashboard', 'admin', 'v', 'payout-rates', 'pages', 'contact', 'api'];
         if (reserved.includes(alias)) return;
 
-        // Redirect to backend (Assume /api/ping works so base is domain/alias)
-        // We calculate backend URL from api settings or assume root of current site
-        // If they are on the same domain, it works automatically.
-        // If not, we should use the API's base URL (cleaned from /api/)
-        const apiBase = api.defaults.baseURL.replace('/api', '');
-        const host = apiBase ? (apiBase.startsWith('http') ? apiBase : window.location.origin + apiBase) : window.location.origin;
-        window.location.href = `${host.replace(/\/$/, '')}/${alias}`;
+        // Redirect to the absolute backend URL hosted on Render
+        // This ensures the click is tracked and then redirected to /v/:alias
+        const backendUrl = 'https://link-shortner-mrnv.onrender.com';
+        window.location.href = `${backendUrl}/${alias}`;
     }, [alias]);
 
     return (

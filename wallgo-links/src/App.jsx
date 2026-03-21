@@ -1,5 +1,7 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
+import { Activity } from 'lucide-react';
+import api from './utils/api';
 
 import { ThemeProvider } from './context/ThemeContext';
 import LandingPage from './pages/LandingPage';
@@ -39,6 +41,30 @@ const AdminRoute = ({ children }) => {
   return children;
 };
 
+// 1. Instantly redirect to backend for click tracking if hitting a short code
+const ShortLinkRedirect = () => {
+    const { alias } = useParams();
+    useEffect(() => {
+        const reserved = ['login', 'register', 'dashboard', 'admin', 'v', 'payout-rates', 'pages', 'contact', 'api'];
+        if (reserved.includes(alias)) return;
+
+        // Redirect to backend (Assume /api/ping works so base is domain/alias)
+        // We calculate backend URL from api settings or assume root of current site
+        // If they are on the same domain, it works automatically.
+        // If not, we should use the API's base URL (cleaned from /api/)
+        const apiBase = api.defaults.baseURL.replace('/api', '');
+        const host = apiBase ? (apiBase.startsWith('http') ? apiBase : window.location.origin + apiBase) : window.location.origin;
+        window.location.href = `${host.replace(/\/$/, '')}/${alias}`;
+    }, [alias]);
+
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', background: 'var(--bg-alt)' }}>
+            <Activity size={40} className="spin" style={{ color: 'var(--primary)', marginBottom: '1rem' }} />
+            <p style={{ fontWeight: '700', color: 'var(--text-muted)' }}>Redirecting to secure link...</p>
+        </div>
+    );
+};
+
 function App() {
   return (
     <ThemeProvider>
@@ -76,6 +102,9 @@ function App() {
           {/* Admin */}
           <Route path="/admin" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
           <Route path="/admin/*" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+  
+          {/* Short Link Catch-all */}
+          <Route path="/:alias" element={<ShortLinkRedirect />} />
   
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/dashboard" replace />} />

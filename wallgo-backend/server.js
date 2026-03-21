@@ -154,6 +154,12 @@ app.get('/st', async (req, res) => {
 });
 
 // ========================================
+// Keep-Alive / Health Check
+// ========================================
+app.get('/api/ping', (req, res) => res.send('pong'));
+app.get('/ping', (req, res) => res.send('pong'));
+
+// ========================================
 // Startup
 // ========================================
 const PORT = process.env.PORT || 5000;
@@ -218,7 +224,7 @@ mongoose.connect(process.env.MONGODB_URI)
         value: {
           steps: 3,
           timer: 15,
-          smartlink: 'https://www.highperformanceformat.com/f9be6e7c7a5f4f899c64e5c5a5a5a5a5', // Placeholder smartlink
+          smartlink: 'https://www.profitablecpmratenetwork.com/vwu8z6augc?key=3416980fd2c4caea836506e140ce2319', 
           backgroundSites: ['https://www.pastex.online/'],
           adBannerIds: {
             top: 'fc4c80a53247a4cd577428a7e29741d0',
@@ -226,11 +232,11 @@ mongoose.connect(process.env.MONGODB_URI)
             content: '3334f040539d82d83a45dcee7b1e54f2'
           },
           adCodes: {
-            top: '',
-            sidebar: '',
-            content: '',
-            popunder: '',
-            socialBar: ''
+            top: `<script>atOptions = { 'key' : 'fc4c80a53247a4cd577428a7e29741d0', 'format' : 'iframe', 'height' : 90, 'width' : 728, 'params' : {} };</script><script src="https://www.highperformanceformat.com/fc4c80a53247a4cd577428a7e29741d0/invoke.js"></script>`,
+            sidebar: `<script>atOptions = { 'key' : '3334f040539d82d83a45dcee7b1e54f2', 'format' : 'iframe', 'height' : 250, 'width' : 300, 'params' : {} };</script><script src="https://www.highperformanceformat.com/3334f040539d82d83a45dcee7b1e54f2/invoke.js"></script>`,
+            content: `<script>atOptions = { 'key' : '3334f040539d82d83a45dcee7b1e54f2', 'format' : 'iframe', 'height' : 250, 'width' : 300, 'params' : {} };</script><script src="https://www.highperformanceformat.com/3334f040539d82d83a45dcee7b1e54f2/invoke.js"></script>`,
+            popunder: `<script src="https://pl28950200.profitablecpmratenetwork.com/85/9b/db/859bdb77b473e5c1b8516b6fe7b6f21d.js"></script>`,
+            socialBar: `<script src="https://pl28950200.profitablecpmratenetwork.com/85/9b/db/859bdb77b473e5c1b8516b6fe7b6f21d.js"></script>`
           }
         },
         description: 'Global configuration for Redirect/Bridge page and Ad units'

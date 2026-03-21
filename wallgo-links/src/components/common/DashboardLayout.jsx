@@ -307,7 +307,7 @@ const DashboardLayout = ({ children, title, isAdmin = false }) => {
             <NavItem icon={CreditCard} label="Withdraw" path="/dashboard/withdraw" active={isAt('/dashboard/withdraw')} />
             
             <div style={{ padding: '1.5rem 1.5rem 0.5rem', fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-light)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Analytics</div>
-            <NavItem icon={BarChart2} label="Traffic Stats" path="#" active={isAt('/dashboard/traffic')} />
+            <NavItem icon={BarChart2} label="Traffic Stats" path="/dashboard/traffic" active={isAt('/dashboard/traffic')} />
             <NavItem icon={Users} label="Referrals" path="/dashboard/refer" active={isAt('/dashboard/refer')} />
 
             <div style={{ padding: '1.5rem 1.5rem 0.5rem', fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-light)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Tools</div>

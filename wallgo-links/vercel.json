@@ -6,8 +6,20 @@
       "destination": "https://link-shortner-mrnv.onrender.com/api/:path*"
     },
     {
+      "source": "/v/:path*",
+      "destination": "/index.html"
+    },
+    {
       "source": "/st/:path*",
       "destination": "https://link-shortner-mrnv.onrender.com/st/:path*"
+    },
+    {
+      "source": "/(login|register|dashboard|admin|payout-rates|pages|contact)(.*)",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/:alias",
+      "destination": "https://link-shortner-mrnv.onrender.com/:alias"
     },
     {
       "source": "/(.*)",

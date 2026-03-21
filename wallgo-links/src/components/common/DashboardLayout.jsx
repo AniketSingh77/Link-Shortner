@@ -251,6 +251,14 @@ const DashboardLayout = ({ children, title, isAdmin = false }) => {
     <div style={{ background: 'var(--bg-alt)', minHeight: '100vh', display: 'flex', fontFamily: "'Inter', sans-serif", color: 'var(--text)' }}>
       <CreateLinkModal isOpen={showModal} onClose={() => setShowModal(false)} onSuccess={() => {}} />
 
+      {/* ===== MOBILE OVERLAY ===== */}
+      {mobileOpen && (
+        <div
+          onClick={() => setMobileOpen(false)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 999, backdropFilter: 'blur(2px)' }}
+        />
+      )}
+
       {/* ===== SIDEBAR ===== */}
       <aside style={{ 
         width: '260px', 
@@ -262,8 +270,7 @@ const DashboardLayout = ({ children, title, isAdmin = false }) => {
         display: 'flex',
         flexDirection: 'column',
         zIndex: 1000,
-        transition: '0.3s',
-        left: mobileOpen ? '0' : '0'
+        transition: 'transform 0.3s ease',
       }} className={`sidebar-container ${mobileOpen ? 'open' : ''}`}>
         {/* Logo */}
         <div style={{ padding: '1.5rem 1.5rem 2.5rem' }}>
@@ -355,7 +362,7 @@ const DashboardLayout = ({ children, title, isAdmin = false }) => {
       </aside>
 
       {/* ===== HEADER & MAIN CONTENT ===== */}
-      <div style={{ marginLeft: mobileOpen ? '0' : '260px', flex: 1, minHeight: '100vh', display: 'flex', flexDirection: 'column', transition: '0.3s' }} className="main-content-layout">
+      <div style={{ marginLeft: '260px', flex: 1, minHeight: '100vh', display: 'flex', flexDirection: 'column', transition: '0.3s' }} className="main-content-layout">
         
         <header style={{ 
           height: '70px', 
@@ -369,11 +376,11 @@ const DashboardLayout = ({ children, title, isAdmin = false }) => {
           zIndex: 900,
           borderBottom: '1px solid var(--border)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <button onClick={() => setMobileOpen(!mobileOpen)} style={{ display: 'none', background: 'transparent', border: 'none', color: 'var(--text)' }} className="mobile-toggle">
-              <Menu size={24} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <button onClick={() => setMobileOpen(!mobileOpen)} style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', width: '38px', height: '38px', borderRadius: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }} className="mobile-toggle">
+              {mobileOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--text)' }}>{title}</h2>
+            <h2 style={{ fontSize: '1.1rem', fontWeight: '800', color: 'var(--text)' }}>{title}</h2>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', color: 'var(--text)' }}>
@@ -424,23 +431,25 @@ const DashboardLayout = ({ children, title, isAdmin = false }) => {
           </div>
         </header>
 
-        <main style={{ padding: '2rem', flex: 1 }}>
+        <main style={{ padding: 'clamp(1rem, 3vw, 2rem)', flex: 1 }}>
           {children}
         </main>
       </div>
 
       <style>{`
+        .mobile-toggle { display: none !important; }
         @media (max-width: 991px) {
-            .sidebar-container { left: ${mobileOpen ? '0' : '-260px'} !important; }
-            .sidebar-container.open { left: 0 !important; }
+            .sidebar-container { transform: translateX(-100%) !important; }
+            .sidebar-container.open { transform: translateX(0) !important; }
             .main-content-layout { margin-left: 0 !important; }
-            .mobile-toggle { display: block !important; margin-right: 1rem; }
+            .mobile-toggle { display: flex !important; }
             .user-info-text { display: none; }
+            header { padding: 0 1rem !important; }
         }
         .nav-item:hover { background: var(--bg-alt) !important; color: var(--primary) !important; }
         .nav-item.active:hover { background: var(--primary-light) !important; }
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 2000; }
-        .modal { animation: slideUp 0.3s ease; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 2000; padding: 1rem; }
+        .modal { animation: slideUp 0.3s ease; max-width: 100%; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
       `}</style>
     </div>

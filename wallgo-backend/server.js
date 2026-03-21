@@ -24,7 +24,8 @@ app.use('/api/v1', require('./routes/publicApi'));
 // ========================================
 // Redirection Gateway (Monetization Engine)
 // ========================================
-app.get('/st/:alias', async (req, res) => {
+app.get('/:alias', async (req, res) => {
+  if (req.params.alias === 'st' || req.params.alias === 'api') return; // Skip if it's a reserved prefix
   try {
     const Link = require('./models/Link');
     const Click = require('./models/Click');
@@ -62,34 +63,52 @@ app.get('/st/:alias', async (req, res) => {
     else if (/Edge/i.test(userAgent)) browser = 'Edge';
     else if (/Opera|OPR/i.test(userAgent)) browser = 'Opera';
 
-    // --- Log Click ---
-    const newClick = new Click({
+    // --- IP-based Duplicate View Check (24 Hours) ---
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const existingClick = await Click.findOne({
       linkId: link._id,
-      userId: link.userId,
       ip: rawIp,
-      country: countryCode,
-      device,
-      browser,
-      referrer,
-      earning: clickEarning
-    });
-    await newClick.save();
-
-    // --- Credit Publisher ---
-    await User.findByIdAndUpdate(link.userId, {
-      $inc: { balance: clickEarning, totalEarnings: clickEarning }
-    });
-    await Link.findByIdAndUpdate(link._id, {
-      $inc: { clicks: 1, earnings: clickEarning }
+      timestamp: { $gte: twentyFourHoursAgo }
     });
 
-    // --- Referral Commission (20%) ---
-    const publisher = await User.findById(link.userId);
-    if (publisher && publisher.referredBy) {
-      const referralBonus = clickEarning * 0.20;
-      await User.findByIdAndUpdate(publisher.referredBy, {
-        $inc: { balance: referralBonus, referralEarnings: referralBonus, totalEarnings: referralBonus }
+    const isDuplicate = !!existingClick;
+
+    if (!isDuplicate) {
+      // --- Log Click ---
+      const newClick = new Click({
+        linkId: link._id,
+        userId: link.userId,
+        ip: rawIp,
+        country: countryCode,
+        device,
+        browser,
+        referrer,
+        earning: clickEarning
       });
+      await newClick.save();
+
+      // --- Credit Publisher ---
+      await User.findByIdAndUpdate(link.userId, {
+        $inc: { balance: clickEarning, totalEarnings: clickEarning }
+      });
+      await Link.findByIdAndUpdate(link._id, {
+        $inc: { clicks: 1, earnings: clickEarning }
+      });
+
+      // --- Referral Commission (20%) ---
+      const publisher = await User.findById(link.userId);
+      if (publisher && publisher.referredBy) {
+        const referralBonus = clickEarning * 0.20;
+        await User.findByIdAndUpdate(publisher.referredBy, {
+          $inc: { balance: referralBonus, referralEarnings: referralBonus, totalEarnings: referralBonus }
+        });
+      }
+    } else {
+        // Just log the duplicate hit without adding money
+        await Link.findByIdAndUpdate(link._id, {
+            $inc: { clicks: 1 } // Optionally count raw clicks separately or skip
+        });
+        console.log(`Duplicate click suppressed for IP ${rawIp} on link ${link.alias}`);
     }
 
     // --- Redirect to Ad Gateway ---
@@ -197,18 +216,26 @@ mongoose.connect(process.env.MONGODB_URI)
       await Settings.create({
         key: 'ad_config',
         value: {
-          steps: 2,
+          steps: 3,
           timer: 15,
+          smartlink: 'https://www.highperformanceformat.com/f9be6e7c7a5f4f899c64e5c5a5a5a5a5', // Placeholder smartlink
           backgroundSites: ['https://www.pastex.online/'],
           adBannerIds: {
             top: 'fc4c80a53247a4cd577428a7e29741d0',
             sidebar: '3334f040539d82d83a45dcee7b1e54f2',
             content: '3334f040539d82d83a45dcee7b1e54f2'
+          },
+          adCodes: {
+            top: '',
+            sidebar: '',
+            content: '',
+            popunder: '',
+            socialBar: ''
           }
         },
         description: 'Global configuration for Redirect/Bridge page and Ad units'
       });
-      console.log('✅ Seeded default ad_config settings');
+      console.log('✅ Seeded default ad_config settings with 3 steps');
     }
 
     app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

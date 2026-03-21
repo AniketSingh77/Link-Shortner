@@ -9,7 +9,7 @@ const LinkCard = ({ link, onUpdate, onDelete }) => {
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const shortUrl = `${window.location.origin}/st/${link.alias}`;
+  const shortUrl = `${window.location.origin}/${link.alias}`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(shortUrl);
@@ -100,7 +100,7 @@ const LinkCard = ({ link, onUpdate, onDelete }) => {
       </div>
 
       <div style={{ background: 'var(--bg-alt)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div style={{ color: 'var(--primary)', fontWeight: '800', fontSize: '1rem' }}>{window.location.hostname.replace('www.', '')}/st/{link.alias}</div>
+        <div style={{ color: 'var(--primary)', fontWeight: '800', fontSize: '1rem' }}>{window.location.hostname.replace('www.', '')}/{link.alias}</div>
         <div style={{ display: 'flex', gap: '0.75rem' }}>
             <button onClick={handleCopy} style={{ background: copied ? '#10b981' : 'var(--bg-card)', color: copied ? 'white' : 'var(--primary)', border: '1px solid ' + (copied ? '#10b981' : 'var(--border)'), padding: '0.5rem 1rem', borderRadius: '8px', fontSize: '0.8125rem', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 {copied ? <Check size={14} /> : <Copy size={14} />} {copied ? 'Copied' : 'Copy'}

@@ -300,7 +300,8 @@ const SettingsSection = () => {
       timer: 15,
       stepConfigs: [],
       adBannerIds: { top: '', sidebar: '', content: '' },
-      adCodes: { top: '', sidebar: '', content: '', popunder: '', socialBar: '' }
+      adCodes: { top: '', sidebar: '', content: '', popunder: '', socialBar: '' },
+      smartlink: ''
     });
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -420,6 +421,10 @@ const SettingsSection = () => {
                         <textarea value={config.adCodes?.socialBar} onChange={e => setConfig({...config, adCodes: {...config.adCodes, socialBar: e.target.value}})} style={{ width: '100%', minHeight: '80px', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--bg-alt)', color: 'var(--text)', fontSize: '0.8125rem', fontFamily: 'monospace' }} />
                     </div>
                   </div>
+                    <div>
+                        <label style={{ display: 'block', fontWeight: '800', fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>SMARTLINK URL</label>
+                        <input type="text" value={config.smartlink} onChange={e => setConfig({...config, smartlink: e.target.value})} placeholder="https://smartlink-offer.com/..." style={{ width: '100%', padding: '0.875rem', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--bg-alt)', color: 'var(--text)', fontWeight: '700' }} />
+                    </div>
               </div>
           </div>
         </div>

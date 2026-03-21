@@ -78,7 +78,7 @@ const Dashboard = () => {
     setShortening(true);
     try {
       const res = await api.post('/links/shorten', { originalUrl: url });
-      setShortened(`${window.location.origin}/st/${res.data.alias}`);
+      setShortened(`${window.location.origin}/${res.data.alias}`);
       fetchData();
     } catch (err) { alert('Failed to shorten link.'); }
     finally { setShortening(false); }

@@ -1,577 +1,611 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
-import {
-  Zap, ExternalLink, AlertCircle, CheckCircle, Shield,
-  X, Clock, ArrowRight, Lock, Activity
-} from 'lucide-react';
+import { AlertCircle, ExternalLink, Zap, Shield } from 'lucide-react';
 import api from '../utils/api';
 
-// ─── Background websites for pages 1–3 ───────────────────────────
-const BG_SITES = [
-  'https://www.pastex.online/',
-  'https://www.wallgo.in/',
-  'https://www.pychart.in/',
-];
-
-// ─── Monetag Ad Zone IDs ──────────────────────────────────────────
+// ─── Monetag Zone Config ───────────────────────────────────────────
 const MONETAG = {
   popunder:  { src: 'https://5gvci.com/act/files/tag.min.js?z=10767360' },
   socialBar: { zone: '10767370', src: 'https://nap5k.com/tag.min.js' },
   vignette:  { zone: '10767382', src: 'https://izcle.com/vignette.min.js' },
 };
 
-// ─── Fire Monetag Popunder (Onclick) ─────────────────────────────
-// Injects the onclick/popunder script — fires a background tab ad
-const firedScripts = new Set();
-function firePopunder() {
-  if (firedScripts.has('popunder')) return;
-  firedScripts.add('popunder');
+const firedOnce = new Set();
+function injectAd({ src, zone } = {}, key) {
+  if (key && firedOnce.has(key)) return;
+  if (key) firedOnce.add(key);
   const s = document.createElement('script');
-  s.src = MONETAG.popunder.src;
+  s.src = src;
   s.async = true;
-  s.setAttribute('data-cfasync', 'false');
-  s.className = 'monetag-injected';
+  s.className = 'monetag-ad';
+  if (zone) s.setAttribute('data-zone', zone);
+  if (key === 'popunder') s.setAttribute('data-cfasync', 'false');
   document.body.appendChild(s);
 }
-
-// ─── Fire Monetag Vignette (full-screen interstitial) ────────────
-// Call this on every step transition — fires the vignette ad
-let vignetteCount = 0;
 function fireVignette() {
-  vignetteCount++;
   const s = document.createElement('script');
+  s.src = MONETAG.vignette.src + '?t=' + Date.now();
   s.setAttribute('data-zone', MONETAG.vignette.zone);
-  s.src = MONETAG.vignette.src + '?t=' + vignetteCount; // cache-bust
-  s.className = 'monetag-injected';
-  document.body.appendChild(s);
-  return s;
-}
-
-// ─── Fire Monetag Social Bar (floating bottom bar) ──────────────
-function fireSocialBar() {
-  if (firedScripts.has('socialBar')) return;
-  firedScripts.add('socialBar');
-  const s = document.createElement('script');
-  s.setAttribute('data-zone', MONETAG.socialBar.zone);
-  s.src = MONETAG.socialBar.src;
-  s.className = 'monetag-injected';
+  s.className = 'monetag-ad';
   document.body.appendChild(s);
 }
 
-// ─── Legacy inject (for admin-configured ad codes) ────────────────
-function injectScript(htmlString) {
-  if (!htmlString) return;
-  const tmp = document.createElement('div');
-  tmp.innerHTML = htmlString;
-  tmp.querySelectorAll('script').forEach(old => {
-    const s = document.createElement('script');
-    if (old.src) { s.src = old.src; s.async = true; }
-    else s.textContent = old.textContent;
-    document.body.appendChild(s);
-  });
-}
+// ─── Fake article content for each blog step ───────────────────────
+const ARTICLES = [
+  {
+    siteName: 'EarnBlog India',
+    favicon: '💰',
+    category: 'MAKE MONEY ONLINE',
+    title: 'Top 10 Websites That Pay You For Sharing Links in 2026',
+    author: 'Priya Sharma',
+    date: 'March 20, 2026',
+    readTime: '5 min read',
+    heroColor: '#1e3a5f',
+    paragraphs: [
+      'In today\'s digital age, earning money online has become more accessible than ever before. With millions of Indians gaining internet access every year, the opportunities for online income have multiplied significantly.',
+      'Link shortening platforms have emerged as one of the simplest ways to monetize your content. By simply shortening URLs and sharing them with your audience, you can earn a commission for every visitor who accesses your links.',
+      'The best part? You don\'t need any technical skills, investment, or special equipment. All you need is a smartphone and an internet connection to start earning from link monetization.',
+      'Many Indian creators are already earning ₹10,000 to ₹50,000 per month purely from sharing short links on WhatsApp groups, Telegram channels, and social media. The key is consistent sharing and a large audience.',
+      'To maximize your earnings, focus on sharing links related to trending topics like movie downloads, government schemes, job notifications, and tech deals. These categories attract the highest traffic and pay the best rates.',
+    ],
+  },
+  {
+    siteName: 'TechGuru Daily',
+    favicon: '🚀',
+    category: 'DIGITAL EARNINGS',
+    title: 'How Telegram Channel Owners Are Earning Lakhs Every Month',
+    author: 'Rahul Verma',
+    date: 'March 18, 2026',
+    readTime: '7 min read',
+    heroColor: '#1a3a2a',
+    paragraphs: [
+      'Telegram has become the go-to platform for Indian content creators looking to build a loyal audience and monetize their content without restrictions. With over 500 million active users, the potential is massive.',
+      'Successful Telegram channel owners are using multiple monetization strategies simultaneously. Sponsored posts, paid memberships, and link monetization are the three pillars of a profitable Telegram channel.',
+      'Link monetization through URL shorteners is the most passive of these methods. Channel owners simply replace direct download links with shortened, monetized versions. Every click translates to direct revenue.',
+      'The math is simple: if your channel gets 10,000 clicks per day and you earn $2 per 1000 visitors, that\'s $20 per day or ₹60,000 per month — without creating any new content.',
+      'The secret to scaling this income is growing your subscriber count. Focus on providing genuine value — exclusive content, fast updates, and helpful resources that keep people coming back.',
+    ],
+  },
+];
 
-// ─── AdSlot: renders ad code inside a ref div (once) ─────────────
-function AdSlot({ code, style }) {
-  const ref = useRef(null);
-  const done = useRef(false);
+// ─── Step config: wait time in seconds per step ───────────────────
+const WAIT_SECS = [15, 15];  // 2 blog steps, then final page
+
+// ─────────────────────────────────────────────────────────────────
+// BLOG ARTICLE PAGE (Steps 1 & 2)
+// ─────────────────────────────────────────────────────────────────
+function BlogPage({ stepIndex, onContinue }) {
+  const art = ARTICLES[stepIndex];
+  // phase: 'wait' (show instruction) | 'counting' (user returned) | 'done' (show continue)
+  const [phase, setPhase] = useState('wait');
+  const [secs, setSecs]   = useState(WAIT_SECS[stepIndex]);
+  const [adClicked, setAdClicked] = useState(false);
+  const leftRef = useRef(false);
+
+  // Detect user leaving (ad click) then returning
   useEffect(() => {
-    if (!code || done.current || !ref.current) return;
-    done.current = true;
-    const tmp = document.createElement('div');
-    tmp.innerHTML = code;
-    Array.from(tmp.childNodes).forEach(node => {
-      if (node.tagName === 'SCRIPT') {
-        const s = document.createElement('script');
-        if (node.src) { s.src = node.src; s.async = true; }
-        else s.textContent = node.textContent;
-        ref.current.appendChild(s);
-      } else {
-        ref.current.appendChild(node.cloneNode(true));
+    if (phase !== 'wait') return;
+    const handler = () => {
+      if (document.visibilityState === 'hidden') {
+        leftRef.current = true;
+      } else if (document.visibilityState === 'visible' && leftRef.current) {
+        leftRef.current = false;
+        setPhase('counting');
+        setSecs(WAIT_SECS[stepIndex]);
       }
-    });
-  }, [code]);
-  return <div ref={ref} style={style} />;
-}
+    };
+    document.addEventListener('visibilitychange', handler);
+    return () => document.removeEventListener('visibilitychange', handler);
+  }, [phase, stepIndex]);
 
-// ─── Closeable Popup Ad Modal ─────────────────────────────────────
-function PopupAd({ code, onClose }) {
+  // Countdown tick
+  useEffect(() => {
+    if (phase !== 'counting') return;
+    if (secs <= 0) { setPhase('done'); return; }
+    const t = setTimeout(() => setSecs(s => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [phase, secs]);
+
+  const handleAdClick = () => {
+    setAdClicked(true);
+    // popunder fires globally on click — just update UI
+  };
+
+  const handleContinue = () => {
+    fireVignette(); // fire full-screen ad between steps
+    onContinue();
+  };
+
   return (
-    <div style={S.popupOverlay}>
-      <div style={S.popupBox}>
-        <div style={S.popupHeader}>
-          <span style={{ fontSize: '0.7rem', fontWeight: 900, color: '#94a3b8', letterSpacing: '0.08em' }}>ADVERTISEMENT</span>
-          <button onClick={onClose} style={S.closeBtn} title="Close Ad">
-            <X size={16} />
-          </button>
+    <div style={B.page}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700;900&family=Inter:wght@400;500;600;700;800;900&display=swap');
+        * { box-sizing: border-box; }
+        body { margin: 0; }
+        .blog-p { font-size: 1rem; line-height: 1.8; color: #374151; margin-bottom: 1.25rem; }
+        .blog-tag { display: inline-block; background: #eff6ff; color: #2563eb; font-size: 0.7rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; letter-spacing: 0.05em; }
+        .cont-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(37,99,235,0.45) !important; }
+        .ad-box:hover { border-color: #f59e0b !important; background: #fffbeb !important; }
+        @media (max-width: 600px) {
+          .blog-title { font-size: 1.4rem !important; }
+          .blog-content { padding: 0 1rem !important; }
+        }
+      `}</style>
+
+      {/* ── TOP INSTRUCTION BANNER ── */}
+      <div style={B.topBanner}>
+        <span style={{ fontSize: '1.1rem' }}>📢</span>
+        <div>
+          <div style={{ fontWeight: 800, fontSize: '0.85rem' }}>
+            CLICK BANNER BELOW — WAIT {WAIT_SECS[stepIndex]} SECONDS — COME BACK TO GET LINK
+          </div>
+          <div style={{ fontSize: '0.75rem', opacity: 0.85, marginTop: '2px' }}>
+            👇 नीचे फोटो पर क्लिक करें, {WAIT_SECS[stepIndex]} सेकंड रुकें, और वापस आएं
+          </div>
         </div>
-        <AdSlot
-          code={code}
-          style={{ minWidth: '300px', minHeight: '250px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-        />
-        <p style={{ fontSize: '0.7rem', color: '#cbd5e1', textAlign: 'center', padding: '0.5rem 0 0' }}>
-          Close this ad to continue
-        </p>
+        <div style={B.stepBadge}>
+          Step {stepIndex + 1}/3
+        </div>
       </div>
+
+      {/* ── BLOG HEADER ── */}
+      <header style={B.header}>
+        <div style={B.headerInner}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ fontSize: '1.5rem' }}>{art.favicon}</span>
+            <span style={{ fontSize: '1.25rem', fontWeight: 900, color: '#111', fontFamily: 'Merriweather, serif' }}>
+              {art.siteName}
+            </span>
+          </div>
+          <nav style={{ display: 'flex', gap: '1rem' }}>
+            {['Home', 'Tech', 'Finance', 'Earn'].map(n => (
+              <span key={n} style={{ fontSize: '0.8rem', color: '#6b7280', cursor: 'pointer', fontWeight: 600 }}>{n}</span>
+            ))}
+          </nav>
+        </div>
+      </header>
+
+      <div style={B.contentWrap} className="blog-content">
+
+        {/* ── ARTICLE HEADER ── */}
+        <div style={{ background: art.heroColor, color: '#fff', padding: '2rem 1.5rem', borderRadius: '16px', marginBottom: '1.5rem' }}>
+          <span className="blog-tag" style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', marginBottom: '0.75rem', display: 'inline-block' }}>
+            {art.category}
+          </span>
+          <h1 className="blog-title" style={{ fontSize: '1.75rem', fontWeight: 900, lineHeight: 1.3, marginBottom: '1rem', fontFamily: 'Merriweather, serif' }}>
+            {art.title}
+          </h1>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', fontSize: '0.8rem', opacity: 0.85 }}>
+            <span>✍️ {art.author}</span>
+            <span>📅 {art.date}</span>
+            <span>⏱ {art.readTime}</span>
+          </div>
+        </div>
+
+        {/* ── AD CLICK SECTION ── */}
+        <div
+          className="ad-box"
+          onClick={handleAdClick}
+          style={{
+            border: `2px dashed ${phase === 'done' ? '#10b981' : '#f59e0b'}`,
+            borderRadius: '16px',
+            padding: '1.5rem',
+            textAlign: 'center',
+            background: phase === 'done' ? '#f0fdf4' : '#fffbeb',
+            marginBottom: '1.5rem',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
+          }}
+        >
+          <p style={{ fontSize: '0.6rem', fontWeight: 900, color: '#92400e', letterSpacing: '0.12em', marginBottom: '0.75rem' }}>
+            ADVERTISEMENT
+          </p>
+
+          {/* PHASE: wait — show clickable ad prompt */}
+          {phase === 'wait' && (
+            <>
+              <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>
+                {adClicked ? '⏳' : '👆'}
+              </div>
+              <div style={{
+                background: adClicked ? '#d1fae5' : 'linear-gradient(135deg, #f59e0b, #ef4444)',
+                color: '#fff',
+                borderRadius: '50px',
+                padding: '0.875rem 2rem',
+                fontWeight: 900,
+                fontSize: '1rem',
+                display: 'inline-block',
+                marginBottom: '0.75rem',
+                boxShadow: '0 4px 15px rgba(245,158,11,0.4)',
+              }}>
+                {adClicked ? '✅ Waiting... Please come back!' : '👉 CLICK HERE & WAIT & COME BACK'}
+              </div>
+              <p style={{ fontSize: '0.8rem', color: '#92400e', fontWeight: 600 }}>
+                {adClicked
+                  ? 'Stay on the ad for a few seconds, then press the back button'
+                  : `Click the button above → Wait ${WAIT_SECS[stepIndex]} seconds → Press back → Get Link`}
+              </p>
+            </>
+          )}
+
+          {/* PHASE: counting — countdown after returning */}
+          {phase === 'counting' && (
+            <>
+              <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>⌛</div>
+              <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#065f46', marginBottom: '0.75rem' }}>
+                ✅ Great! You came back. Please wait...
+              </div>
+              <div style={{
+                width: '80px', height: '80px',
+                borderRadius: '50%',
+                background: `conic-gradient(#10b981 ${((WAIT_SECS[stepIndex] - secs) / WAIT_SECS[stepIndex]) * 360}deg, #d1fae5 0deg)`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                margin: '0 auto 0.75rem',
+                boxShadow: '0 4px 15px rgba(16,185,129,0.3)',
+              }}>
+                <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+                  <span style={{ fontSize: '1.4rem', fontWeight: 900, color: '#059669', lineHeight: 1 }}>{secs}</span>
+                  <span style={{ fontSize: '0.55rem', color: '#6b7280', fontWeight: 700 }}>secs</span>
+                </div>
+              </div>
+              <p style={{ fontSize: '0.8rem', color: '#047857', fontWeight: 700 }}>
+                Scroll down after {secs}s to get your link
+              </p>
+            </>
+          )}
+
+          {/* PHASE: done — show continue button */}
+          {phase === 'done' && (
+            <>
+              <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>🎉</div>
+              <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#065f46', marginBottom: '1rem' }}>
+                ✅ Verified! Scroll down and click CONTINUE
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* CONTINUE button — shown only when done */}
+        {phase === 'done' && (
+          <button
+            className="cont-btn"
+            onClick={handleContinue}
+            style={{
+              width: '100%', padding: '1.1rem',
+              background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+              color: '#fff', border: 'none', borderRadius: '50px',
+              fontSize: '1.05rem', fontWeight: 900,
+              cursor: 'pointer', marginBottom: '1.5rem',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
+              boxShadow: '0 8px 20px rgba(37,99,235,0.35)',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            Scroll down And Click <span style={{ fontSize: '1.2rem' }}>CONTINUE</span> →
+          </button>
+        )}
+
+        {/* ── ARTICLE CONTENT ── */}
+        <div style={{ borderLeft: '4px solid #2563eb', paddingLeft: '1.25rem', marginBottom: '1.5rem', background: '#eff6ff', padding: '1rem 1rem 1rem 1.25rem', borderRadius: '0 12px 12px 0' }}>
+          <p style={{ fontSize: '0.85rem', fontStyle: 'italic', color: '#1d4ed8', fontWeight: 600, margin: 0 }}>
+            "The best time to start earning online was yesterday. The second best time is right now."
+          </p>
+        </div>
+
+        {art.paragraphs.map((p, i) => (
+          <p key={i} className="blog-p">{p}</p>
+        ))}
+
+        {/* ── TAGS ── */}
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '2rem' }}>
+          {['Online Earning', 'India 2026', 'Link Shortener', 'Passive Income'].map(t => (
+            <span key={t} className="blog-tag">#{t.replace(' ', '')}</span>
+          ))}
+        </div>
+
+        {/* ── BOTTOM CONTINUE (repeat for scrollers) ── */}
+        {phase === 'done' && (
+          <button
+            className="cont-btn"
+            onClick={handleContinue}
+            style={{
+              width: '100%', padding: '1.1rem',
+              background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+              color: '#fff', border: 'none', borderRadius: '50px',
+              fontSize: '1.05rem', fontWeight: 900,
+              cursor: 'pointer', marginBottom: '2rem',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
+              boxShadow: '0 8px 20px rgba(37,99,235,0.35)',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            CONTINUE →
+          </button>
+        )}
+      </div>
+
+      {/* ── BLOG FOOTER ── */}
+      <footer style={B.footer}>
+        <p style={{ fontSize: '0.75rem', color: '#9ca3af' }}>
+          © 2026 {art.siteName} · All rights reserved · Powered by WallgoLinks
+        </p>
+      </footer>
     </div>
   );
 }
 
-// ─── Timer Ring SVG ───────────────────────────────────────────────
-function Ring({ sec, total, size = 72 }) {
-  const r = size / 2 - 5;
-  const circ = 2 * Math.PI * r;
-  const offset = circ - (sec / total) * circ;
+// ─────────────────────────────────────────────────────────────────
+// FINAL PAGE (Step 3) — Arolinks style
+// ─────────────────────────────────────────────────────────────────
+function FinalPage({ alias, onGetLink }) {
+  const [secs, setSecs]   = useState(6);
+  const [ready, setReady] = useState(false);
+  const [url, setUrl]     = useState(null);
+
+  useEffect(() => {
+    // Fetch real URL
+    api.get(`/links/resolve/${alias}`)
+      .then(r => setUrl(r.data.originalUrl))
+      .catch(() => {});
+    // 6s countdown
+    let c = 6;
+    const t = setInterval(() => {
+      c--;
+      setSecs(c);
+      if (c <= 0) { clearInterval(t); setReady(true); }
+    }, 1000);
+    return () => clearInterval(t);
+  }, [alias]);
+
+  const handleGet = () => {
+    if (url) { window.location.href = url; }
+    else { onGetLink?.(); }
+  };
+
   return (
-    <svg width={size} height={size} style={{ transform: 'rotate(-90deg)' }}>
-      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth={4} />
-      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#fff" strokeWidth={4}
-        strokeDasharray={circ} strokeDashoffset={offset}
-        style={{ transition: '1s linear', strokeLinecap: 'round' }} />
-      <text x="50%" y="50%" textAnchor="middle" dy=".35em"
-        style={{ transform: 'rotate(90deg)', transformOrigin: '50% 50%', fontSize: size * 0.28, fontWeight: 900, fill: '#fff' }}>
-        {sec}
-      </text>
-    </svg>
+    <div style={{ minHeight: '100vh', background: '#f0f4ff', fontFamily: "'Inter', sans-serif", display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+        * { box-sizing: border-box; }
+        .get-btn:hover { transform: translateY(-3px) !important; box-shadow: 0 18px 40px rgba(37,99,235,0.5) !important; }
+      `}</style>
+
+      {/* Nav */}
+      <nav style={{ width: '100%', maxWidth: '600px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem' }}>
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', fontWeight: 900, fontSize: '1.1rem', color: '#111' }}>
+          <div style={{ background: '#2563eb', borderRadius: '8px', padding: '5px 8px' }}>
+            <Zap size={16} color="white" fill="white" />
+          </div>
+          Wallgo<span style={{ color: '#2563eb' }}>Links</span>
+        </Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#fff', border: '1px solid #e2e8f0', borderRadius: '20px', padding: '4px 12px', fontSize: '0.7rem', fontWeight: 800, color: '#64748b' }}>
+          <Shield size={12} color="#10b981" /> SECURE
+        </div>
+      </nav>
+
+      {/* Progress bar */}
+      <div style={{ width: '100%', maxWidth: '600px', padding: '0 1.5rem', marginBottom: '1.5rem' }}>
+        <div style={{ display: 'flex', gap: '6px' }}>
+          {[1, 2, 3].map(i => (
+            <div key={i} style={{ flex: 1, height: '5px', borderRadius: '10px', background: '#2563eb' }} />
+          ))}
+        </div>
+        <p style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, marginTop: '6px', textAlign: 'center' }}>
+          You are currently on step <strong style={{ color: '#2563eb' }}>3/3</strong> — Final Step!
+        </p>
+      </div>
+
+      {/* Main card */}
+      <div style={{ width: '100%', maxWidth: '520px', background: '#fff', borderRadius: '24px', boxShadow: '0 20px 60px rgba(0,0,0,0.1)', overflow: 'hidden', margin: '0 1rem 2rem' }}>
+
+        {/* Telegram join section */}
+        <div style={{ background: 'linear-gradient(135deg, #0088cc, #0066aa)', padding: '1.75rem 1.5rem', textAlign: 'center' }}>
+          <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>✈️</div>
+          <h2 style={{ color: '#fff', fontWeight: 900, fontSize: '1.2rem', marginBottom: '0.25rem' }}>
+            ⬇️ JOIN OUR TELEGRAM CHANNEL TO <span style={{ color: '#ffd700' }}>GET LINK.</span> ⬇️
+          </h2>
+          <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: '0.8rem', fontWeight: 600 }}>
+            Get exclusive links, latest updates & more!
+          </p>
+          <a
+            href="https://t.me/wallgolinks"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: '8px',
+              background: '#fff', color: '#0088cc',
+              borderRadius: '50px', padding: '0.75rem 2rem',
+              fontWeight: 900, fontSize: '0.9rem', textDecoration: 'none',
+              marginTop: '1rem', boxShadow: '0 4px 15px rgba(0,0,0,0.15)',
+            }}
+          >
+            ✈️ Join Our WallgoLinks Telegram Channel
+          </a>
+        </div>
+
+        {/* Countdown + Get Link */}
+        <div style={{ padding: '2rem 1.5rem', textAlign: 'center' }}>
+          <p style={{ fontSize: '1rem', fontWeight: 700, color: '#374151', marginBottom: '1.25rem' }}>
+            Your link is almost ready.
+          </p>
+
+          {/* Circle countdown */}
+          <div style={{ position: 'relative', width: '100px', height: '100px', margin: '0 auto 1.5rem' }}>
+            <svg width="100" height="100" style={{ transform: 'rotate(-90deg)' }}>
+              <circle cx="50" cy="50" r="44" fill="none" stroke="#e2e8f0" strokeWidth="8" />
+              <circle
+                cx="50" cy="50" r="44" fill="none"
+                stroke="#2563eb" strokeWidth="8"
+                strokeDasharray={2 * Math.PI * 44}
+                strokeDashoffset={2 * Math.PI * 44 * (secs / 6)}
+                style={{ transition: '1s linear', strokeLinecap: 'round' }}
+              />
+            </svg>
+            <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ fontSize: '1.8rem', fontWeight: 900, color: '#1e40af', lineHeight: 1 }}>{secs}</span>
+              <span style={{ fontSize: '0.6rem', color: '#94a3b8', fontWeight: 700 }}>Seconds</span>
+            </div>
+          </div>
+
+          {ready ? (
+            <button
+              className="get-btn"
+              onClick={handleGet}
+              style={{
+                width: '100%', padding: '1.25rem',
+                background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
+                color: '#fff', border: 'none', borderRadius: '50px',
+                fontSize: '1.2rem', fontWeight: 900,
+                cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px',
+                boxShadow: '0 10px 25px rgba(37,99,235,0.35)',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <ExternalLink size={22} /> Get Link
+            </button>
+          ) : (
+            <div style={{ background: '#f1f5f9', borderRadius: '50px', padding: '1rem 2rem', fontSize: '0.85rem', fontWeight: 700, color: '#94a3b8', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+              ⏳ Please wait {secs} seconds...
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Footer */}
+      <footer style={{ textAlign: 'center', padding: '1rem', fontSize: '0.75rem', color: '#94a3b8' }}>
+        © 2026 WallgoLinks ·{' '}
+        {['terms', 'privacy', 'dmca'].map((s, i) => (
+          <span key={s}>
+            <Link to={`/pages/${s}`} style={{ color: '#64748b', textDecoration: 'none', fontWeight: 700 }}>{s.toUpperCase()}</Link>
+            {i < 2 && ' · '}
+          </span>
+        ))}
+      </footer>
+    </div>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────
-// MAIN COMPONENT
+// MAIN REDIRECT COMPONENT
 // ─────────────────────────────────────────────────────────────────
-const TIMERS = { 1: 0, 2: 15, 3: 10, 4: 5 }; // page 1 = no timer (just click)
-
 export default function RedirectPage() {
   const { alias: urlAlias } = useParams();
   const [searchParams] = useSearchParams();
   const alias = urlAlias || searchParams.get('alias');
 
-  const [config, setConfig]         = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error,   setError]   = useState(false);
   const [linkDetails, setLinkDetails] = useState(null);
-  const [loading, setLoading]       = useState(true);
-  const [error, setError]           = useState(false);
-  const [page, setPage]             = useState(1);           // 1–4
-  const [timeLeft, setTimeLeft]     = useState(TIMERS[2]);
-  const [canProceed, setCanProceed] = useState(false);
-  const [showPopup, setShowPopup]   = useState(false);
-  const [captchaChecked, setCaptchaChecked] = useState(false);
-  const [finalUrl, setFinalUrl]     = useState(null);
-  const popFired = useRef({});
+  const [step, setStep] = useState(1);  // 1, 2 = blog pages; 3 = final
 
-  // ── Load config + link + fire ALL 3 Monetag ads ──────────────
+  // Init: load link + fire popunder + social bar
   useEffect(() => {
     if (!alias) { setLoading(false); setError(true); return; }
     (async () => {
       try {
-        const [adRes, linkRes] = await Promise.all([
-          api.get('/pages/settings/ad-config'),
-          api.get(`/links/details/${alias}`)
-        ]);
-        const conf = adRes.data.value || adRes.data;
-        setConfig(conf);
-        setLinkDetails(linkRes.data);
-        // ───────────────────────────────────────────────
-        // MONETAG: Fire all 3 ads on redirect page load ONLY
-        // These do NOT fire on dashboard/login/any other page
-        // ───────────────────────────────────────────────
-        firePopunder();   // Background tab ad on first click
-        fireSocialBar();  // Floating bottom bar
-        // Vignette fires on each step transition via goToPage()
-        // ───────────────────────────────────────────────
-        // Admin-configured ad codes (legacy support)
-        injectScript(conf.adCodes?.popunder);
-        injectScript(conf.adCodes?.socialBar);
+        const res = await api.get(`/links/details/${alias}`);
+        setLinkDetails(res.data);
+        // Fire Monetag ads — only on redirect pages
+        injectAd(MONETAG.popunder,  'popunder');
+        injectAd(MONETAG.socialBar, 'socialBar');
       } catch { setError(true); }
       finally { setLoading(false); }
     })();
-
-    // ── CLEANUP: Remove all Monetag scripts when user leaves redirect page ──
-    // This ensures ads DON'T carry over to dashboard or other pages
     return () => {
-      document.querySelectorAll('.monetag-injected').forEach(s => s.remove());
-      firedScripts.clear();
-      vignetteCount = 0;
+      document.querySelectorAll('.monetag-ad').forEach(s => s.remove());
+      firedOnce.clear();
     };
   }, [alias]);
 
-  // ── Countdown timer ─────────────────────────────────────────────
-  useEffect(() => {
-    if (loading || page === 1) return; // page 1 has no countdown
-    if (timeLeft <= 0) { setCanProceed(true); return; }
-    const t = setTimeout(() => setTimeLeft(s => s - 1), 1000);
-    return () => clearTimeout(t);
-  }, [timeLeft, loading, page]);
-
-  // ── Show popup ad 3s after entering page 2 or 3 ─────────────────
-  useEffect(() => {
-    if (loading || (page !== 2 && page !== 3)) return;
-    if (popFired.current[page]) return;
-    popFired.current[page] = true;
-    const t = setTimeout(() => setShowPopup(true), 3000);
-    // ── Re-fire Monetag popunder on page 2 entry ─────────────────
-    if (page === 2) firePopunder();
-    // Admin-configured ad codes (legacy)
-    if (page === 2 && config?.adCodes?.popunder) injectScript(config.adCodes.popunder);
-    return () => clearTimeout(t);
-  }, [page, loading, config]);
-
-  // ── Prefetch final URL on page 4 ─────────────────────────────────
-  useEffect(() => {
-    if (page === 4 && linkDetails?.alias && !finalUrl) {
-      api.get(`/links/resolve/${linkDetails.alias}`)
-        .then(r => setFinalUrl(r.data.originalUrl))
-        .catch(() => {});
-      if (config?.adCodes?.popunder) injectScript(config.adCodes.popunder);
-    }
-  }, [page]);
-
-  // ── Auto-redirect on page 4 when timer ends ───────────────────
-  useEffect(() => {
-    if (page === 4 && canProceed && finalUrl) {
-      // Give 1 extra second then auto-go
-      const t = setTimeout(() => { window.location.href = finalUrl; }, 1200);
-      return () => clearTimeout(t);
-    }
-  }, [canProceed, finalUrl, page]);
-
-  const goToPage = useCallback((next) => {
-    // ── Fire Monetag Vignette on EVERY step transition ───────────
-    // This is the highest-CPM touch point — fires full-screen ad
-    // between every redirect step, just like Arolinks does
-    fireVignette();
-
-    setPage(next);
-    if (next > 1 && next < 4) {
-      const dur = next === 2 ? (config?.timer || TIMERS[2]) : TIMERS[next];
-      setTimeLeft(dur);
-    } else if (next === 4) {
-      setTimeLeft(TIMERS[4]);
-    }
-    setCanProceed(false);
-    setShowPopup(false);
-    setCaptchaChecked(false);
-  }, [config]);
-
-  // ── Loading ──────────────────────────────────────────────────────
   if (loading) return (
-    <div style={S.centeredScreen}>
-      <div style={S.loadCard}>
-        <Activity size={32} color="#6366f1" className="spin" />
-        <p style={{ color: '#64748b', fontWeight: 700, fontSize: '0.9rem' }}>Preparing your link…</p>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', fontFamily: 'Inter, sans-serif' }}>
+      <div style={{ textAlign: 'center', padding: '3rem 2rem' }}>
+        <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>⚡</div>
+        <p style={{ fontWeight: 700, color: '#64748b', fontSize: '1rem' }}>Preparing your link…</p>
       </div>
     </div>
   );
 
   if (error || !linkDetails) return (
-    <div style={S.centeredScreen}>
-      <div style={{ ...S.loadCard, gap: '1rem' }}>
-        <AlertCircle size={48} color="#ef4444" />
-        <h2 style={{ fontWeight: 900 }}>Link Not Found</h2>
-        <Link to="/" style={S.btnBlue}>← Go Home</Link>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', fontFamily: 'Inter, sans-serif' }}>
+      <div style={{ textAlign: 'center', padding: '3rem 2rem' }}>
+        <AlertCircle size={48} color="#ef4444" style={{ marginBottom: '1rem' }} />
+        <h2 style={{ fontWeight: 900, marginBottom: '1rem', color: '#111' }}>Link Not Found</h2>
+        <Link to="/" style={{ background: '#2563eb', color: '#fff', padding: '0.75rem 2rem', borderRadius: '50px', textDecoration: 'none', fontWeight: 800 }}>
+          ← Go Home
+        </Link>
       </div>
     </div>
   );
 
-  const bgSite = BG_SITES[page - 1]; // undefined for page 4
-  const totalTimer = page === 2 ? (config?.timer || TIMERS[2]) : (TIMERS[page] || 5);
-  const progress = page > 1 && page < 4 ? Math.round(((totalTimer - timeLeft) / totalTimer) * 100) : 0;
-
-  // ─────────────────────────────────────────────────────────────
-  // RENDER
-  // ─────────────────────────────────────────────────────────────
-  return (
-    <div style={{ position: 'fixed', inset: 0, overflow: 'hidden', fontFamily: "'Inter', sans-serif" }}>
-
-      {/* ── Popup Ad (closeable) ── */}
-      {showPopup && (
-        <PopupAd
-          code={config?.adCodes?.sidebar || config?.adCodes?.content}
-          onClose={() => setShowPopup(false)}
-        />
-      )}
-
-      {/* ── PAGES 1–3: Background iframe ── */}
-      {page <= 3 && (
-        <iframe
-          src={bgSite}
-          title="background-site"
-          style={S.iframe}
-          sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
-        />
-      )}
-
-      {/* ── PAGE 4: Solid background ── */}
-      {page === 4 && <div style={S.solidBg} />}
-
-      {/* ── Dark scrim under the card ── */}
-      <div style={S.scrim} />
-
-      {/* ═══════════════════════════════════════════════════════ */}
-      {/* PAGE 1: Human Verification                             */}
-      {/* ═══════════════════════════════════════════════════════ */}
-      {page === 1 && (
-        <div style={S.cardWrap}>
-          <div style={S.card}>
-            {/* Step dots */}
-            <div style={S.dots}>
-              {[1,2,3,4].map(i => (
-                <div key={i} style={{ ...S.dot, background: i <= page ? '#6366f1' : 'rgba(255,255,255,0.25)' }} />
-              ))}
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-              <div style={S.iconCircle}><Shield size={20} color="#6366f1" /></div>
-              <h2 style={S.cardTitle}>Verify You're Human</h2>
-            </div>
-            <p style={S.cardSub}>Complete this step to unlock your link safely.</p>
-
-            {/* Captcha-style checkbox */}
-            <div style={S.captchaBox} onClick={() => setCaptchaChecked(true)}>
-              <div style={{ ...S.checkbox, background: captchaChecked ? '#10b981' : '#fff', borderColor: captchaChecked ? '#10b981' : '#cbd5e1' }}>
-                {captchaChecked && <CheckCircle size={18} color="white" fill="white" />}
-              </div>
-              <span style={{ fontWeight: 700, fontSize: '0.9rem', color: '#1e293b' }}>I am not a robot</span>
-              <img src="https://www.gstatic.com/recaptcha/api2/logo_48.png" alt="captcha" style={{ width: 32, marginLeft: 'auto', opacity: 0.6 }} />
-            </div>
-
-            {captchaChecked && (
-              <button onClick={() => goToPage(2)} style={S.btnPrimary}>
-                CONTINUE <ArrowRight size={18} />
-              </button>
-            )}
-
-            <p style={S.poweredBy}>🔒 Secured by WallgoLinks Gateway</p>
-          </div>
-        </div>
-      )}
-
-      {/* ═══════════════════════════════════════════════════════ */}
-      {/* PAGE 2: Ads Page (wallgo.in background)                */}
-      {/* ═══════════════════════════════════════════════════════ */}
-      {page === 2 && (
-        <div style={S.cardWrap}>
-          <div style={S.card}>
-            <div style={S.dots}>
-              {[1,2,3,4].map(i => (
-                <div key={i} style={{ ...S.dot, background: i <= page ? '#6366f1' : 'rgba(255,255,255,0.25)' }} />
-              ))}
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-              <div style={S.iconCircle}><Clock size={20} color="#6366f1" /></div>
-              <h2 style={S.cardTitle}>Generating Your Link…</h2>
-            </div>
-            <p style={S.cardSub}>Please wait while we process your request. Do not close this page.</p>
-
-            {/* Circular timer + progress */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', marginBottom: '1.25rem' }}>
-              <Ring sec={timeLeft} total={totalTimer} size={80} />
-              <div style={S.progressTrack}>
-                <div style={{ ...S.progressFill, width: `${progress}%` }} />
-              </div>
-              <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>
-                {canProceed ? '✅ Link ready! Click continue.' : `Processing… ${timeLeft}s remaining`}
-              </p>
-            </div>
-
-            {canProceed ? (
-              <button onClick={() => goToPage(3)} style={S.btnPrimary}>
-                CONTINUE <ArrowRight size={18} />
-              </button>
-            ) : (
-              <div style={S.waitPill}>
-                <Activity size={16} className="spin" /> Waiting for timer…
-              </div>
-            )}
-
-            <p style={S.poweredBy}>🔒 Secured by WallgoLinks Gateway</p>
-          </div>
-        </div>
-      )}
-
-      {/* ═══════════════════════════════════════════════════════ */}
-      {/* PAGE 3: (pychart.in background)                        */}
-      {/* ═══════════════════════════════════════════════════════ */}
-      {page === 3 && (
-        <div style={S.cardWrap}>
-          <div style={S.card}>
-            <div style={S.dots}>
-              {[1,2,3,4].map(i => (
-                <div key={i} style={{ ...S.dot, background: i <= page ? '#10b981' : 'rgba(255,255,255,0.25)' }} />
-              ))}
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-              <div style={{ ...S.iconCircle, background: 'rgba(16,185,129,0.15)' }}><Lock size={20} color="#10b981" /></div>
-              <h2 style={S.cardTitle}>Almost There…</h2>
-            </div>
-            <p style={S.cardSub}>Final verification step. Your link will be ready shortly.</p>
-
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', marginBottom: '1.25rem' }}>
-              <Ring sec={timeLeft} total={TIMERS[3]} size={80} />
-              <div style={S.progressTrack}>
-                <div style={{ ...S.progressFill, width: `${Math.round(((TIMERS[3] - timeLeft) / TIMERS[3]) * 100)}%`, background: 'linear-gradient(90deg, #10b981, #34d399)' }} />
-              </div>
-              <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'rgba(255,255,255,0.6)' }}>
-                {canProceed ? '✅ Ready! Click to get your link.' : `Processing… ${timeLeft}s remaining`}
-              </p>
-            </div>
-
-            {canProceed ? (
-              <button onClick={() => goToPage(4)} style={{ ...S.btnPrimary, background: 'linear-gradient(135deg, #10b981, #059669)' }}>
-                GET MY LINK <ArrowRight size={18} />
-              </button>
-            ) : (
-              <div style={S.waitPill}>
-                <Activity size={16} className="spin" /> Almost done…
-              </div>
-            )}
-
-            <p style={S.poweredBy}>🔒 Secured by WallgoLinks Gateway</p>
-          </div>
-        </div>
-      )}
-
-      {/* ═══════════════════════════════════════════════════════ */}
-      {/* PAGE 4: FINAL REDIRECT PAGE                            */}
-      {/* ═══════════════════════════════════════════════════════ */}
-      {page === 4 && (
-        <div style={{ ...S.cardWrap, alignItems: 'center' }}>
-          {/* Logo Bar */}
-          <div style={S.page4Wrap}>
-            <nav style={S.page4Nav}>
-              <Link to="/" style={S.logo}>
-                <div style={S.logoIcon}><Zap size={18} color="white" fill="white" /></div>
-                <span>Wallgo<span style={{ color: '#6366f1' }}>Links</span></span>
-              </Link>
-              <div style={S.secureTag}><Shield size={12} color="#10b981" /> SECURE GATEWAY</div>
-            </nav>
-
-            {/* Step progress */}
-            <div style={{ display: 'flex', gap: '8px', padding: '0 1.5rem', marginBottom: '1.5rem' }}>
-              {[1,2,3,4].map(i => (
-                <div key={i} style={{ flex: 1, height: '5px', borderRadius: '10px', background: i <= 4 ? '#6366f1' : '#e2e8f0', transition: '0.3s' }} />
-              ))}
-            </div>
-
-            <div style={S.page4Card}>
-              <div style={S.page4Icon}>🎉</div>
-              <h1 style={S.page4Title}>Your Link is Ready!</h1>
-              <p style={S.page4Sub}>You will be redirected to your destination in a moment.</p>
-
-              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
-                <Ring sec={timeLeft} total={TIMERS[4]} size={92} />
-              </div>
-
-              {/* Ad banner on final page */}
-              {(config?.adCodes?.sidebar || config?.adCodes?.content) && (
-                <div style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
-                  <p style={{ fontSize: '0.6rem', color: '#94a3b8', fontWeight: 900, marginBottom: '8px', letterSpacing: '0.08em' }}>ADVERTISEMENT</p>
-                  <div style={{ display: 'inline-block', background: '#f8fafc', borderRadius: '12px', padding: '0.75rem', border: '1px solid #e2e8f0' }}>
-                    <AdSlot
-                      code={config?.adCodes?.sidebar || config?.adCodes?.content}
-                      style={{ minHeight: '100px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {canProceed ? (
-                <button onClick={() => finalUrl && (window.location.href = finalUrl)} style={S.page4Btn}>
-                  <ExternalLink size={22} /> GET MY LINK NOW
-                </button>
-              ) : (
-                <div style={S.page4Wait}>
-                  <Activity size={18} className="spin" color="#6366f1" />
-                  <span>Auto-redirecting in {timeLeft}s…</span>
-                </div>
-              )}
-            </div>
-
-            <footer style={S.page4Footer}>
-              <p style={{ fontSize: '0.75rem', color: '#94a3b8' }}>© 2026 WallgoLinks · Secure Link Network</p>
-              <div style={{ display: 'flex', gap: '1.5rem', marginTop: '0.5rem' }}>
-                {['terms','privacy','dmca'].map(s => (
-                  <Link key={s} to={`/pages/${s}`} style={{ fontSize: '0.75rem', color: '#64748b', textDecoration: 'none', fontWeight: 700 }}>{s.toUpperCase()}</Link>
-                ))}
-              </div>
-            </footer>
-          </div>
-        </div>
-      )}
-
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
-        .spin { animation: spin 1s linear infinite; }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-      `}</style>
-    </div>
+  // Step 1 → Blog Article 1
+  if (step === 1) return (
+    <BlogPage stepIndex={0} onContinue={() => setStep(2)} />
   );
+
+  // Step 2 → Blog Article 2
+  if (step === 2) return (
+    <BlogPage stepIndex={1} onContinue={() => setStep(3)} />
+  );
+
+  // Step 3 → Final get-link page
+  return <FinalPage alias={linkDetails.alias} />;
 }
 
-// ─────────────────────────────────────────────────────────────────
-// STYLES
-// ─────────────────────────────────────────────────────────────────
-const S = {
-  centeredScreen: { position: 'fixed', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f0f4f8' },
-  loadCard: { background: '#fff', borderRadius: '20px', padding: '3rem 2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' },
-
-  // Popup
-  popupOverlay: { position: 'fixed', inset: 0, zIndex: 9999, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' },
-  popupBox: { background: '#fff', borderRadius: '20px', padding: '1.5rem', maxWidth: '360px', width: '90%', boxShadow: '0 24px 60px rgba(0,0,0,0.4)' },
-  popupHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' },
-  closeBtn: { background: '#f1f5f9', border: 'none', borderRadius: '8px', padding: '0.4rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' },
-
-  // Iframe background
-  iframe: { position: 'absolute', inset: 0, width: '100%', height: '100%', border: 'none', zIndex: 1 },
-  solidBg: { position: 'absolute', inset: 0, background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%)', zIndex: 1 },
-  scrim: { position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(2px)', zIndex: 2 },
-
-  // Floating card (pages 1–3)
-  cardWrap: { position: 'absolute', inset: 0, zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' },
-  card: {
-    background: 'rgba(15, 23, 42, 0.88)',
-    backdropFilter: 'blur(24px)',
-    border: '1px solid rgba(255,255,255,0.12)',
-    borderRadius: '28px',
-    padding: '2rem 1.75rem',
-    width: '100%',
-    maxWidth: '420px',
-    color: '#fff',
-    boxShadow: '0 32px 80px rgba(0,0,0,0.5)',
+// ─── Blog Layout Styles ───────────────────────────────────────────
+const B = {
+  page: {
+    minHeight: '100vh',
+    background: '#fff',
+    fontFamily: "'Inter', sans-serif",
   },
-  dots: { display: 'flex', gap: '8px', marginBottom: '1.5rem' },
-  dot: { flex: 1, height: '4px', borderRadius: '4px', transition: '0.3s' },
-  iconCircle: { width: 40, height: 40, borderRadius: '12px', background: 'rgba(99,102,241,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
-  cardTitle: { fontSize: '1.25rem', fontWeight: 900, color: '#fff' },
-  cardSub: { fontSize: '0.8rem', color: 'rgba(255,255,255,0.55)', fontWeight: 600, marginBottom: '1.5rem', lineHeight: 1.5 },
-
-  // Captcha
-  captchaBox: { display: 'flex', alignItems: 'center', gap: '0.875rem', background: '#fff', borderRadius: '12px', padding: '1rem 1.25rem', cursor: 'pointer', marginBottom: '1.25rem', border: '2px solid #e2e8f0', transition: '0.2s' },
-  checkbox: { width: 24, height: 24, borderRadius: '6px', border: '2px solid #cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: '0.2s' },
-
-  // Buttons
-  btnPrimary: { width: '100%', padding: '1rem', borderRadius: '50px', border: 'none', background: 'linear-gradient(135deg, #6366f1, #4f46e5)', color: '#fff', fontSize: '1rem', fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', boxShadow: '0 8px 20px rgba(99,102,241,0.4)', marginBottom: '1rem' },
-  btnBlue: { background: '#6366f1', color: '#fff', padding: '0.75rem 2rem', borderRadius: '50px', textDecoration: 'none', fontWeight: 800, fontSize: '0.9rem', display: 'inline-block' },
-  waitPill: { display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', background: 'rgba(255,255,255,0.08)', borderRadius: '50px', padding: '0.875rem', fontSize: '0.875rem', fontWeight: 700, color: 'rgba(255,255,255,0.7)', marginBottom: '1rem' },
-  poweredBy: { textAlign: 'center', fontSize: '0.65rem', color: 'rgba(255,255,255,0.3)', fontWeight: 700 },
-
-  // Progress bar
-  progressTrack: { width: '100%', height: '6px', background: 'rgba(255,255,255,0.15)', borderRadius: '6px', overflow: 'hidden' },
-  progressFill: { height: '100%', background: 'linear-gradient(90deg, #6366f1, #818cf8)', borderRadius: '6px', transition: '1s linear' },
-
-  // Page 4 specific
-  page4Wrap: { width: '100%', maxWidth: '700px', zIndex: 10 },
-  page4Nav: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem 1.5rem', background: 'rgba(255,255,255,0.97)', borderBottom: '1px solid #e2e8f0', borderRadius: '20px 20px 0 0' },
-  logo: { display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', fontSize: '1.15rem', fontWeight: 900, color: '#0f172a', letterSpacing: '-0.03em' },
-  logoIcon: { background: '#6366f1', padding: '0.35rem', borderRadius: '8px' },
-  secureTag: { display: 'flex', alignItems: 'center', gap: '6px', background: '#f1f5f9', padding: '4px 12px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 800, color: '#64748b', letterSpacing: '0.05em' },
-  page4Card: { background: '#fff', padding: '2.5rem 2rem', textAlign: 'center' },
-  page4Icon: { fontSize: '3rem', marginBottom: '0.75rem' },
-  page4Title: { fontSize: '1.75rem', fontWeight: 900, color: '#0f172a', marginBottom: '0.5rem' },
-  page4Sub: { color: '#64748b', fontSize: '0.875rem', fontWeight: 600, marginBottom: '2rem' },
-  page4Btn: { display: 'inline-flex', alignItems: 'center', gap: '12px', background: 'linear-gradient(135deg, #10b981, #059669)', color: '#fff', border: 'none', padding: '1.25rem 3rem', borderRadius: '50px', fontSize: '1.2rem', fontWeight: 900, cursor: 'pointer', boxShadow: '0 12px 30px rgba(16,185,129,0.35)', marginTop: '0.5rem' },
-  page4Wait: { display: 'inline-flex', alignItems: 'center', gap: '10px', background: '#f1f5f9', padding: '1rem 2rem', borderRadius: '50px', fontSize: '0.9rem', fontWeight: 700, color: '#64748b' },
-  page4Footer: { background: 'rgba(255,255,255,0.97)', borderTop: '1px solid #e2e8f0', padding: '1.25rem', textAlign: 'center', borderRadius: '0 0 20px 20px' },
+  topBanner: {
+    background: 'linear-gradient(135deg, #1e3a8a, #1d4ed8)',
+    color: '#fff',
+    padding: '0.875rem 1.25rem',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px',
+    position: 'sticky',
+    top: 0,
+    zIndex: 100,
+    boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
+  },
+  stepBadge: {
+    marginLeft: 'auto',
+    background: 'rgba(255,255,255,0.2)',
+    borderRadius: '20px',
+    padding: '3px 12px',
+    fontSize: '0.7rem',
+    fontWeight: 900,
+    whiteSpace: 'nowrap',
+    border: '1px solid rgba(255,255,255,0.3)',
+  },
+  header: {
+    background: '#fff',
+    borderBottom: '2px solid #f1f5f9',
+    padding: '0.75rem 1.5rem',
+    position: 'sticky',
+    top: '58px',
+    zIndex: 99,
+  },
+  headerInner: {
+    maxWidth: '700px',
+    margin: '0 auto',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  contentWrap: {
+    maxWidth: '700px',
+    margin: '0 auto',
+    padding: '1.5rem 1.5rem 2rem',
+  },
+  footer: {
+    background: '#f9fafb',
+    borderTop: '1px solid #e5e7eb',
+    padding: '1.5rem',
+    textAlign: 'center',
+  },
 };

@@ -13,7 +13,38 @@ const BG_SITES = [
   'https://www.pychart.in/',
 ];
 
-// ─── Inject ad script tags into document body ─────────────────────
+// ─── Monetag Ad Zone IDs ──────────────────────────────────────────
+const MONETAG = {
+  popunder:  { src: 'https://5gvci.com/act/files/tag.min.js?z=10767360' },
+  socialBar: { zone: '10767370', src: 'https://nap5k.com/tag.min.js' },
+  vignette:  { zone: '10767382', src: 'https://izcle.com/vignette.min.js' },
+};
+
+// ─── Fire Monetag Popunder (Onclick) ─────────────────────────────
+// Injects the onclick/popunder script — fires a background tab ad
+const firedScripts = new Set();
+function firePopunder() {
+  if (firedScripts.has('popunder')) return;
+  firedScripts.add('popunder');
+  const s = document.createElement('script');
+  s.src = MONETAG.popunder.src;
+  s.async = true;
+  s.setAttribute('data-cfasync', 'false');
+  document.body.appendChild(s);
+}
+
+// ─── Fire Monetag Vignette (full-screen interstitial) ────────────
+// Call this on every step transition — fires the vignette ad
+let vignetteCount = 0;
+function fireVignette() {
+  vignetteCount++;
+  const s = document.createElement('script');
+  s.setAttribute('data-zone', MONETAG.vignette.zone);
+  s.src = MONETAG.vignette.src + '?t=' + vignetteCount; // cache-bust
+  document.body.appendChild(s);
+}
+
+// ─── Legacy inject (for admin-configured ad codes) ────────────────
 function injectScript(htmlString) {
   if (!htmlString) return;
   const tmp = document.createElement('div');
@@ -125,7 +156,9 @@ export default function RedirectPage() {
         const conf = adRes.data.value || adRes.data;
         setConfig(conf);
         setLinkDetails(linkRes.data);
-        // Fire popunder on first load
+        // ── Fire Monetag Popunder on initial redirect page load ──
+        firePopunder();
+        // ── Admin-configured ad codes (legacy support) ───────────
         injectScript(conf.adCodes?.popunder);
         injectScript(conf.adCodes?.socialBar);
       } catch { setError(true); }
@@ -147,7 +180,9 @@ export default function RedirectPage() {
     if (popFired.current[page]) return;
     popFired.current[page] = true;
     const t = setTimeout(() => setShowPopup(true), 3000);
-    // Also fire popunder again on page 2
+    // ── Re-fire Monetag popunder on page 2 entry ─────────────────
+    if (page === 2) firePopunder();
+    // Admin-configured ad codes (legacy)
     if (page === 2 && config?.adCodes?.popunder) injectScript(config.adCodes.popunder);
     return () => clearTimeout(t);
   }, [page, loading, config]);
@@ -172,6 +207,11 @@ export default function RedirectPage() {
   }, [canProceed, finalUrl, page]);
 
   const goToPage = useCallback((next) => {
+    // ── Fire Monetag Vignette on EVERY step transition ───────────
+    // This is the highest-CPM touch point — fires full-screen ad
+    // between every redirect step, just like Arolinks does
+    fireVignette();
+
     setPage(next);
     if (next > 1 && next < 4) {
       const dur = next === 2 ? (config?.timer || TIMERS[2]) : TIMERS[next];

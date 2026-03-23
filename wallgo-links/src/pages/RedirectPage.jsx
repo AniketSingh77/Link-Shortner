@@ -30,6 +30,7 @@ function firePopunder() {
   s.src = MONETAG.popunder.src;
   s.async = true;
   s.setAttribute('data-cfasync', 'false');
+  s.className = 'monetag-injected';
   document.body.appendChild(s);
 }
 
@@ -41,6 +42,19 @@ function fireVignette() {
   const s = document.createElement('script');
   s.setAttribute('data-zone', MONETAG.vignette.zone);
   s.src = MONETAG.vignette.src + '?t=' + vignetteCount; // cache-bust
+  s.className = 'monetag-injected';
+  document.body.appendChild(s);
+  return s;
+}
+
+// ─── Fire Monetag Social Bar (floating bottom bar) ──────────────
+function fireSocialBar() {
+  if (firedScripts.has('socialBar')) return;
+  firedScripts.add('socialBar');
+  const s = document.createElement('script');
+  s.setAttribute('data-zone', MONETAG.socialBar.zone);
+  s.src = MONETAG.socialBar.src;
+  s.className = 'monetag-injected';
   document.body.appendChild(s);
 }
 
@@ -144,7 +158,7 @@ export default function RedirectPage() {
   const [finalUrl, setFinalUrl]     = useState(null);
   const popFired = useRef({});
 
-  // ── Load config + link ──────────────────────────────────────────
+  // ── Load config + link + fire ALL 3 Monetag ads ──────────────
   useEffect(() => {
     if (!alias) { setLoading(false); setError(true); return; }
     (async () => {
@@ -156,14 +170,28 @@ export default function RedirectPage() {
         const conf = adRes.data.value || adRes.data;
         setConfig(conf);
         setLinkDetails(linkRes.data);
-        // ── Fire Monetag Popunder on initial redirect page load ──
-        firePopunder();
-        // ── Admin-configured ad codes (legacy support) ───────────
+        // ───────────────────────────────────────────────
+        // MONETAG: Fire all 3 ads on redirect page load ONLY
+        // These do NOT fire on dashboard/login/any other page
+        // ───────────────────────────────────────────────
+        firePopunder();   // Background tab ad on first click
+        fireSocialBar();  // Floating bottom bar
+        // Vignette fires on each step transition via goToPage()
+        // ───────────────────────────────────────────────
+        // Admin-configured ad codes (legacy support)
         injectScript(conf.adCodes?.popunder);
         injectScript(conf.adCodes?.socialBar);
       } catch { setError(true); }
       finally { setLoading(false); }
     })();
+
+    // ── CLEANUP: Remove all Monetag scripts when user leaves redirect page ──
+    // This ensures ads DON'T carry over to dashboard or other pages
+    return () => {
+      document.querySelectorAll('.monetag-injected').forEach(s => s.remove());
+      firedScripts.clear();
+      vignetteCount = 0;
+    };
   }, [alias]);
 
   // ── Countdown timer ─────────────────────────────────────────────

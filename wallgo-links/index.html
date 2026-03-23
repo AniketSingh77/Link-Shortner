@@ -11,6 +11,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script type="module" src="/src/main.jsx"></script>
+    <!-- Monetag Push Notification Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js', { scope: '/' })
+          .then(function(reg) { console.log('Monetag SW registered:', reg.scope); })
+          .catch(function(err) { console.log('SW registration failed:', err); });
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
